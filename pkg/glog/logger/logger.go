@@ -15,6 +15,7 @@ func (this *Logger) Trace() *Log {
 	return getLog(this)
 }
 
-func (this *Logger) Commit(log *Log) {
+func (this *Logger) commit(log *Log) {
+	log.fillTimestamp()
 	os.Stderr.Write(log.buf)
 }
