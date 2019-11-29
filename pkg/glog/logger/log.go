@@ -1,8 +1,6 @@
 package logger
 
 import (
-	"path/filepath"
-	"runtime"
 	"strconv"
 	"time"
 )
@@ -13,15 +11,17 @@ type Log struct {
 }
 
 func getLog(logger *Logger) *Log {
-	log := &Log{
+	return &Log{
 		logger: logger,
-		buf:    make([]byte, timeLen, logBufLen),
+		buf:    make([]byte, 0, logBufLen),
 	}
-	log.appendRuntimeInfo()
-	return log
 }
 
 func (this *Log) Int(key string, value int) *Log {
+	if this == nil {
+		return nil
+	}
+
 	this.appendSeparator()
 
 	this.buf = append(this.buf, key...)
@@ -32,14 +32,26 @@ func (this *Log) Int(key string, value int) *Log {
 }
 
 func (this *Log) Commit() {
+	if this == nil {
+		return
+	}
+
 	this.appendNewLine()
 	this.logger.commit(this)
 }
 
-func (this *Log) appendRuntimeInfo() {
+func (this *Log) reserveTimestamp() {
+	this.buf = this.buf[:timeLen]
+}
+
+func (this *Log) appendLevel(level Level) {
+	this.appendSeparator()
+	this.buf = append(this.buf, levelNames[level]...)
+}
+
+func (this *Log) appendRuntimeInfo(file string, line int, fn string) {
 	this.appendSeparator()
 
-	file, line, fn := runtimeInfo(stackOffset)
 	this.buf = append(this.buf, file...)
 	this.buf = append(this.buf, ':')
 	this.buf = strconv.AppendInt(this.buf, int64(line), 10)
@@ -49,8 +61,8 @@ func (this *Log) appendRuntimeInfo() {
 	this.buf = append(this.buf, fn...)
 }
 
-func (this *Log) fillTimestamp() {
-	time.Now().AppendFormat(this.buf[:0], timeLayout)
+func (this *Log) fillTimestamp(tm time.Time) {
+	tm.AppendFormat(this.buf[:0], timeLayout)
 }
 
 func (this *Log) appendNewLine() {
@@ -61,16 +73,5 @@ func (this *Log) appendSeparator() {
 	this.buf = append(this.buf, ' ')
 }
 
-func runtimeInfo(callDepth int) (file string, line int, fn string) {
-	var pc uintptr
-	var ok bool
-	pc, file, line, ok = runtime.Caller(callDepth)
-	if ok {
-		fn = runtime.FuncForPC(pc).Name()
-	} else {
-		file = "???"
-		line = 0
-		fn = "???"
-	}
-	return filepath.Base(file), line, fn
+func (this *Log) put() {
 }
