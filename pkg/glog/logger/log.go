@@ -75,18 +75,6 @@ func (this *Log) appendLevel(level Level) {
 	this.buf = append(this.buf, levelNames[level]...)
 }
 
-func (this *Log) appendRuntimeInfo(file string, line int, fn string) {
-	this.appendSeparator()
-
-	this.buf = append(this.buf, file...)
-	this.buf = append(this.buf, ':')
-	this.buf = strconv.AppendInt(this.buf, int64(line), 10)
-
-	this.appendSeparator()
-
-	this.buf = append(this.buf, fn...)
-}
-
 func (this *Log) fillTimestamp(tm time.Time) {
 	tm.AppendFormat(this.buf[:0], timeLayout)
 }

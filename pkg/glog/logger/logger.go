@@ -3,8 +3,6 @@ package logger
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"runtime"
 	"sync/atomic"
 	"time"
 )
@@ -58,8 +56,6 @@ func (this *Logger) genLog(level Level, callDepth int) *Log {
 	log := getLog(this)
 	log.reserveTimestamp()
 	log.appendLevel(level)
-	file, line, fn := runtimeInfo(stackOffset + callDepth)
-	log.appendRuntimeInfo(filepath.Base(file), line, fn)
 
 	return log
 }
@@ -75,18 +71,4 @@ func (this *Logger) commit(log *Log) {
 	os.Stderr.Write(log.buf)
 
 	log.put()
-}
-
-func runtimeInfo(callDepth int) (file string, line int, fn string) {
-	var pc uintptr
-	var ok bool
-	pc, file, line, ok = runtime.Caller(callDepth)
-	if ok {
-		fn = runtime.FuncForPC(pc).Name()
-	} else {
-		file = "???"
-		line = 0
-		fn = "???"
-	}
-	return file, line, fn
 }
