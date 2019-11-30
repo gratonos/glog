@@ -96,31 +96,32 @@ func (this *Log) fillTimestamp(tm time.Time) {
 }
 
 func (this *Log) appendInt64Field(key string, value int64) *Log {
-	return this.appendField(key, func() {
+	if this != nil {
+		this.appendKey(key)
 		this.buf = strconv.AppendInt(this.buf, value, 10)
-	})
+		this.appendEnd()
+	}
+	return this
 }
 
 func (this *Log) appendUint64Field(key string, value uint64) *Log {
-	return this.appendField(key, func() {
+	if this != nil {
+		this.appendKey(key)
 		this.buf = strconv.AppendUint(this.buf, value, 10)
-	})
+		this.appendEnd()
+	}
+	return this
 }
 
-func (this *Log) appendField(key string, appender func()) *Log {
-	if this == nil {
-		return nil
-	}
-
+func (this *Log) appendKey(key string) {
 	this.appendSeparator()
-
 	this.buf = append(this.buf, '(')
 	this.buf = append(this.buf, key...)
 	this.buf = append(this.buf, ": "...)
-	appender()
-	this.buf = append(this.buf, ')')
+}
 
-	return this
+func (this *Log) appendEnd() {
+	this.buf = append(this.buf, ')')
 }
 
 func (this *Log) appendNewLine() {
