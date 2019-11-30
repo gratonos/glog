@@ -67,7 +67,7 @@ func (this *Log) Commit() {
 }
 
 func (this *Log) reserveTimestamp() {
-	this.buf = this.buf[:timeLen]
+	this.buf = append(this.buf[:0], timeHolder...)
 }
 
 func (this *Log) appendLevel(level Level) {
@@ -76,7 +76,10 @@ func (this *Log) appendLevel(level Level) {
 }
 
 func (this *Log) fillTimestamp(tm time.Time) {
-	tm.AppendFormat(this.buf[:0], timeLayout)
+	fillInt(this.buf[hourBegin:hourEnd], tm.Hour())
+	fillInt(this.buf[minuteBegin:microEnd], tm.Minute())
+	fillInt(this.buf[secondBegin:secondEnd], tm.Second())
+	fillInt(this.buf[microBegin:microEnd], tm.Nanosecond()/1000)
 }
 
 func (this *Log) appendInt64Field(key string, value int64) *Log {
@@ -116,4 +119,26 @@ func (this *Log) appendSeparator() {
 }
 
 func (this *Log) put() {
+}
+
+// assert(n >= 0 && len(buf) >= digits(n) && len(buf) % 2 == 0)
+func fillInt(buf []byte, n int) {
+	const smallsString = "00010203040506070809" +
+		"10111213141516171819" +
+		"20212223242526272829" +
+		"30313233343536373839" +
+		"40414243444546474849" +
+		"50515253545556575859" +
+		"60616263646566676869" +
+		"70717273747576777879" +
+		"80818283848586878889" +
+		"90919293949596979899"
+	i := len(buf)
+	for n > 0 {
+		i -= 2
+		j := (n % 100) << 1
+		buf[i+1] = smallsString[j+1]
+		buf[i+0] = smallsString[j+0]
+		n /= 100
+	}
 }

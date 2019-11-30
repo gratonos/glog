@@ -13,9 +13,16 @@ const (
 )
 
 const (
-	logBufLen  = 256
-	timeLayout = "2006-01-02 15:04:05.000000"
-	timeLen    = len(timeLayout)
+	logBufLen   = 256
+	timeHolder  = "00:00:00.000000"
+	hourBegin   = 0
+	hourEnd     = 2
+	minuteBegin = 3
+	minuteEnd   = 5
+	secondBegin = 6
+	secondEnd   = 8
+	microBegin  = 9
+	microEnd    = len(timeHolder)
 )
 
 const (
