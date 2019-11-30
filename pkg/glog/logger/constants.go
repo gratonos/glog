@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	logBufLen   = 256
+	logBufLen   = 512
 	timeHolder  = "00:00:00.000000"
 	hourBegin   = 0
 	hourEnd     = 2

@@ -2,6 +2,7 @@ package logger
 
 import (
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -10,11 +11,23 @@ type Log struct {
 	buf    []byte
 }
 
+var logPool = sync.Pool{
+	New: func() interface{} {
+		return &Log{
+			buf: make([]byte, 0, logBufLen),
+		}
+	},
+}
+
 func getLog(logger *Logger) *Log {
-	return &Log{
-		logger: logger,
-		buf:    make([]byte, 0, logBufLen),
-	}
+	log := logPool.Get().(*Log)
+	log.logger = logger
+	log.buf = log.buf[:0]
+	return log
+}
+
+func putLog(log *Log) {
+	logPool.Put(log)
 }
 
 func (this *Log) Int(key string, value int) *Log {
@@ -67,7 +80,7 @@ func (this *Log) Commit() {
 }
 
 func (this *Log) reserveTimestamp() {
-	this.buf = append(this.buf[:0], timeHolder...)
+	this.buf = append(this.buf, timeHolder...)
 }
 
 func (this *Log) appendLevel(level Level) {
@@ -116,9 +129,6 @@ func (this *Log) appendNewLine() {
 
 func (this *Log) appendSeparator() {
 	this.buf = append(this.buf, ' ')
-}
-
-func (this *Log) put() {
 }
 
 // assert(n >= 0 && len(buf) >= digits(n) && len(buf) % 2 == 0)

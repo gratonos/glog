@@ -70,5 +70,5 @@ func (this *Logger) commit(log *Log) {
 
 	os.Stderr.Write(log.buf)
 
-	log.put()
+	putLog(log)
 }
