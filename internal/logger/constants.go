@@ -1,19 +1,14 @@
 package logger
 
-type Level int32
-
-const (
-	Trace Level = iota
-	Debug
-	Info
-	Warn
-	Error
-	Fatal
-	Off
+import (
+	"github.com/gratonos/glog/pkg/glog"
 )
 
 const (
-	logBufLen   = 512
+	logBufLen = 512
+)
+
+const (
 	timeHolder  = "00:00:00.000000"
 	hourBegin   = 0
 	hourEnd     = 2
@@ -25,15 +20,11 @@ const (
 	microEnd    = len(timeHolder)
 )
 
-const (
-	stackOffset = 3
-)
-
 var levelNames = []string{
-	Trace: "TRACE",
-	Debug: "DEBUG",
-	Info:  "INFO ",
-	Warn:  "WARN ",
-	Error: "ERROR",
-	Fatal: "FATAL",
+	glog.Trace: "TRACE",
+	glog.Debug: "DEBUG",
+	glog.Info:  "INFO ",
+	glog.Warn:  "WARN ",
+	glog.Error: "ERROR",
+	glog.Fatal: "FATAL",
 }

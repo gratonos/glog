@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/gratonos/glog/pkg/glog"
 )
 
 type Log struct {
@@ -83,7 +85,7 @@ func (this *Log) reserveTimestamp() {
 	this.buf = append(this.buf, timeHolder...)
 }
 
-func (this *Log) appendLevel(level Level) {
+func (this *Log) appendLevel(level glog.Level) {
 	this.appendSeparator()
 	this.buf = append(this.buf, levelNames[level]...)
 }
