@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/gratonos/glog/pkg/glog"
+	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
 const (
@@ -21,10 +21,10 @@ const (
 )
 
 var levelNames = []string{
-	glog.Trace: "TRACE",
-	glog.Debug: "DEBUG",
-	glog.Info:  "INFO ",
-	glog.Warn:  "WARN ",
-	glog.Error: "ERROR",
-	glog.Fatal: "FATAL",
+	iface.Trace: "TRACE",
+	iface.Debug: "DEBUG",
+	iface.Info:  "INFO ",
+	iface.Warn:  "WARN ",
+	iface.Error: "ERROR",
+	iface.Fatal: "FATAL",
 }

@@ -4,46 +4,46 @@ import (
 	"fmt"
 
 	"github.com/gratonos/glog/internal/logger"
-	"github.com/gratonos/glog/pkg/glog"
+	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
 type Logger struct {
 	log *logger.Logger
 }
 
-func New(level glog.Level) *Logger {
+func New() *Logger {
 	return &Logger{
-		log: logger.New(level),
+		log: logger.New(),
 	}
 }
 
-func (this *Logger) Log(level glog.Level) *logger.Log {
-	if level < glog.Trace || level > glog.Fatal {
+func (this *Logger) Log(level iface.Level) *logger.Log {
+	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
 	return this.log.GenLog(level)
 }
 
 func (this *Logger) Trace() *logger.Log {
-	return this.log.GenLog(glog.Trace)
+	return this.log.GenLog(iface.Trace)
 }
 
 func (this *Logger) Debug() *logger.Log {
-	return this.log.GenLog(glog.Debug)
+	return this.log.GenLog(iface.Debug)
 }
 
 func (this *Logger) Info() *logger.Log {
-	return this.log.GenLog(glog.Info)
+	return this.log.GenLog(iface.Info)
 }
 
 func (this *Logger) Warn() *logger.Log {
-	return this.log.GenLog(glog.Warn)
+	return this.log.GenLog(iface.Warn)
 }
 
 func (this *Logger) Error() *logger.Log {
-	return this.log.GenLog(glog.Error)
+	return this.log.GenLog(iface.Error)
 }
 
 func (this *Logger) Fatal() *logger.Log {
-	return this.log.GenLog(glog.Fatal)
+	return this.log.GenLog(iface.Fatal)
 }

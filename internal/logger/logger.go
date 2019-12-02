@@ -5,20 +5,20 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/gratonos/glog/pkg/glog"
+	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
 type Logger struct {
-	level glog.Level
+	level iface.Level
 }
 
-func New(level glog.Level) *Logger {
+func New() *Logger {
 	return &Logger{
-		level: level,
+		level: iface.Trace,
 	}
 }
 
-func (this *Logger) GenLog(level glog.Level) *Log {
+func (this *Logger) GenLog(level iface.Level) *Log {
 	if this.getLevel() > level {
 		return nil
 	}
@@ -30,8 +30,8 @@ func (this *Logger) GenLog(level glog.Level) *Log {
 	return log
 }
 
-func (this *Logger) getLevel() glog.Level {
-	return glog.Level(atomic.LoadInt32((*int32)(&this.level)))
+func (this *Logger) getLevel() iface.Level {
+	return iface.Level(atomic.LoadInt32((*int32)(&this.level)))
 }
 
 func (this *Logger) commit(log *Log) {

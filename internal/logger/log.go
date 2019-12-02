@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gratonos/glog/pkg/glog"
+	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
 type Log struct {
@@ -85,7 +85,7 @@ func (this *Log) reserveTimestamp() {
 	this.buf = append(this.buf, timeHolder...)
 }
 
-func (this *Log) appendLevel(level glog.Level) {
+func (this *Log) appendLevel(level iface.Level) {
 	this.appendSeparator()
 	this.buf = append(this.buf, levelNames[level]...)
 }
