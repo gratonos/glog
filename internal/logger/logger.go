@@ -23,7 +23,7 @@ func New() *Logger {
 	}
 }
 
-func (this *Logger) GenLog(level iface.Level) *Log {
+func (this *Logger) GenLog(level iface.Level, pkg string) *Log {
 	if this.level.Get() > level {
 		return nil
 	}
@@ -31,6 +31,7 @@ func (this *Logger) GenLog(level iface.Level) *Log {
 	log := getLog(this)
 	log.reserveTimestamp()
 	log.appendLevel(level)
+	log.appendInfo(pkg)
 
 	return log
 }

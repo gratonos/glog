@@ -9,11 +9,13 @@ import (
 
 type Logger struct {
 	log *logger.Logger
+	pkg string
 }
 
-func New() *Logger {
+func New(log *logger.Logger, pkg string) *Logger {
 	return &Logger{
-		log: logger.New(),
+		log: log,
+		pkg: pkg,
 	}
 }
 
@@ -21,31 +23,31 @@ func (this *Logger) Log(level iface.Level) *logger.Log {
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	return this.log.GenLog(level)
+	return this.log.GenLog(level, this.pkg)
 }
 
 func (this *Logger) Trace() *logger.Log {
-	return this.log.GenLog(iface.Trace)
+	return this.log.GenLog(iface.Trace, this.pkg)
 }
 
 func (this *Logger) Debug() *logger.Log {
-	return this.log.GenLog(iface.Debug)
+	return this.log.GenLog(iface.Debug, this.pkg)
 }
 
 func (this *Logger) Info() *logger.Log {
-	return this.log.GenLog(iface.Info)
+	return this.log.GenLog(iface.Info, this.pkg)
 }
 
 func (this *Logger) Warn() *logger.Log {
-	return this.log.GenLog(iface.Warn)
+	return this.log.GenLog(iface.Warn, this.pkg)
 }
 
 func (this *Logger) Error() *logger.Log {
-	return this.log.GenLog(iface.Error)
+	return this.log.GenLog(iface.Error, this.pkg)
 }
 
 func (this *Logger) Fatal() *logger.Log {
-	return this.log.GenLog(iface.Fatal)
+	return this.log.GenLog(iface.Fatal, this.pkg)
 }
 
 func (this *Logger) Config() iface.Config {

@@ -90,6 +90,11 @@ func (this *Log) appendLevel(level iface.Level) {
 	this.buf = append(this.buf, levelNames[level]...)
 }
 
+func (this *Log) appendInfo(info string) {
+	this.appendSeparator()
+	this.buf = append(this.buf, info...)
+}
+
 func (this *Log) fillTimestamp(tm time.Time) {
 	fillInt(this.buf[hourBegin:hourEnd], tm.Hour())
 	fillInt(this.buf[minuteBegin:microEnd], tm.Minute())
