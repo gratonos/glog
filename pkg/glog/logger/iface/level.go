@@ -12,6 +12,10 @@ const (
 	Off
 )
 
+func LegalLoggerLevel(level Level) bool {
+	return level >= Trace && level <= Off
+}
+
 func LegalLogLevel(level Level) bool {
 	return level >= Trace && level <= Fatal
 }

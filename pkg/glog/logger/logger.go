@@ -47,3 +47,15 @@ func (this *Logger) Error() *logger.Log {
 func (this *Logger) Fatal() *logger.Log {
 	return this.log.GenLog(iface.Fatal)
 }
+
+func (this *Logger) Config() iface.Config {
+	return this.log.Config()
+}
+
+func (this *Logger) SetConfig(config iface.Config) error {
+	return this.log.SetConfig(config)
+}
+
+func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
+	return this.log.UpdateConfig(updater)
+}
