@@ -19,35 +19,35 @@ func New(log *logger.Logger, pkg string) *Logger {
 	}
 }
 
-func (this *Logger) Log(level iface.Level) *logger.Log {
+func (this *Logger) Log(level iface.Level, msg string) *logger.Log {
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	return this.log.GenLog(level, this.pkg)
+	return this.log.GenLog(level, this.pkg, msg)
 }
 
-func (this *Logger) Trace() *logger.Log {
-	return this.log.GenLog(iface.Trace, this.pkg)
+func (this *Logger) Trace(msg string) *logger.Log {
+	return this.log.GenLog(iface.Trace, this.pkg, msg)
 }
 
-func (this *Logger) Debug() *logger.Log {
-	return this.log.GenLog(iface.Debug, this.pkg)
+func (this *Logger) Debug(msg string) *logger.Log {
+	return this.log.GenLog(iface.Debug, this.pkg, msg)
 }
 
-func (this *Logger) Info() *logger.Log {
-	return this.log.GenLog(iface.Info, this.pkg)
+func (this *Logger) Info(msg string) *logger.Log {
+	return this.log.GenLog(iface.Info, this.pkg, msg)
 }
 
-func (this *Logger) Warn() *logger.Log {
-	return this.log.GenLog(iface.Warn, this.pkg)
+func (this *Logger) Warn(msg string) *logger.Log {
+	return this.log.GenLog(iface.Warn, this.pkg, msg)
 }
 
-func (this *Logger) Error() *logger.Log {
-	return this.log.GenLog(iface.Error, this.pkg)
+func (this *Logger) Error(msg string) *logger.Log {
+	return this.log.GenLog(iface.Error, this.pkg, msg)
 }
 
-func (this *Logger) Fatal() *logger.Log {
-	return this.log.GenLog(iface.Fatal, this.pkg)
+func (this *Logger) Fatal(msg string) *logger.Log {
+	return this.log.GenLog(iface.Fatal, this.pkg, msg)
 }
 
 func (this *Logger) Config() iface.Config {
