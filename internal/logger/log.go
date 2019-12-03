@@ -95,6 +95,13 @@ func (this *Log) appendInfo(info string) {
 	this.buf = append(this.buf, info...)
 }
 
+func (this *Log) appendMsg(msg string) {
+	this.appendSeparator()
+	this.appendMsgLeftBound()
+	this.buf = append(this.buf, msg...)
+	this.appendMsgRightBound()
+}
+
 func (this *Log) fillTimestamp(tm time.Time) {
 	fillInt(this.buf[hourBegin:hourEnd], tm.Hour())
 	fillInt(this.buf[minuteBegin:microEnd], tm.Minute())
@@ -137,6 +144,14 @@ func (this *Log) appendNewLine() {
 
 func (this *Log) appendSeparator() {
 	this.buf = append(this.buf, ' ')
+}
+
+func (this *Log) appendMsgLeftBound() {
+	this.buf = append(this.buf, '<')
+}
+
+func (this *Log) appendMsgRightBound() {
+	this.buf = append(this.buf, '>')
 }
 
 // assert(n >= 0 && len(buf) >= digits(n) && len(buf) % 2 == 0)

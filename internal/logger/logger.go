@@ -35,9 +35,7 @@ func (this *Logger) GenLog(level iface.Level, pkg, marker, msg string) *Log {
 	if marker != "" {
 		log.appendInfo(marker)
 	}
-	if msg != "" {
-		log.appendInfo(msg)
-	}
+	log.appendMsg(msg)
 
 	return log
 }
