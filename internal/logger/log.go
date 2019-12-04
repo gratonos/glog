@@ -112,6 +112,26 @@ func (this *Log) Str(key, value string) *Log {
 	return this.appendStrField(key, value)
 }
 
+func (this *Log) Err(err error) *Log {
+	return this.appendStrField("error", err.Error())
+}
+
+func (this *Log) DateTime(key string, tm time.Time) *Log {
+	return this.appendDateTimeField(key, tm, true, true)
+}
+
+func (this *Log) Date(key string, tm time.Time) *Log {
+	return this.appendDateTimeField(key, tm, true, false)
+}
+
+func (this *Log) Time(key string, tm time.Time) *Log {
+	return this.appendDateTimeField(key, tm, false, true)
+}
+
+func (this *Log) Duration(key string, dur time.Duration) *Log {
+	return this.appendDurationField(key, dur)
+}
+
 func (this *Log) Commit() {
 	if this == nil {
 		return
@@ -122,7 +142,11 @@ func (this *Log) Commit() {
 }
 
 func (this *Log) reserveTimestamp() {
-	this.buf = append(this.buf, timeHolder...)
+	this.reserveTime()
+}
+
+func (this *Log) fillTimestamp(tm time.Time) {
+	this.fillTime(this.buf[:len(timeHolder)], tm)
 }
 
 func (this *Log) appendLevel(level iface.Level) {
@@ -140,15 +164,6 @@ func (this *Log) appendMsg(msg string) {
 	this.appendMsgLeftBound()
 	this.buf = append(this.buf, msg...)
 	this.appendMsgRightBound()
-}
-
-func (this *Log) fillTimestamp(tm time.Time) {
-	hour, min, sec := tm.Clock()
-	nano := tm.Nanosecond()
-	fillInt(this.buf[hourBegin:hourEnd], hour)
-	fillInt(this.buf[minuteBegin:minuteEnd], min)
-	fillInt(this.buf[secondBegin:secondEnd], sec)
-	fillInt(this.buf[microBegin:microEnd], nano/1000)
 }
 
 func (this *Log) appendInt64Field(key string, value int64) *Log {
@@ -218,6 +233,52 @@ func (this *Log) appendStrField(key, value string) *Log {
 	return this
 }
 
+func (this *Log) appendDateTimeField(key string, tm time.Time, date, time bool) *Log {
+	if this != nil {
+		this.appendKey(key)
+		if date {
+			this.appendDate(tm)
+			if time {
+				this.appendSeparator()
+			}
+		}
+		if time {
+			this.appendTime(tm)
+		}
+		this.appendEnd()
+	}
+	return this
+}
+
+func (this *Log) appendDurationField(key string, dur time.Duration) *Log {
+	if this != nil {
+		this.appendKey(key)
+		if dur < time.Microsecond {
+			this.buf = strconv.AppendInt(this.buf, int64(dur), integerBase)
+			this.buf = append(this.buf, "ns"...)
+		} else if dur < time.Millisecond {
+			this.buf = strconv.AppendInt(this.buf, int64(dur/time.Microsecond), integerBase)
+			this.buf = append(this.buf, '.')
+			this.buf = strconv.AppendInt(this.buf, int64(dur%time.Microsecond), integerBase)
+			this.buf = append(this.buf, "us"...)
+		} else if dur < time.Second {
+			this.buf = strconv.AppendInt(this.buf, int64(dur/time.Millisecond), integerBase)
+			this.buf = append(this.buf, '.')
+			this.buf = strconv.AppendInt(this.buf,
+				int64(dur%time.Millisecond/time.Microsecond), integerBase)
+			this.buf = append(this.buf, "ms"...)
+		} else {
+			this.buf = strconv.AppendInt(this.buf, int64(dur/time.Second), integerBase)
+			this.buf = append(this.buf, '.')
+			this.buf = strconv.AppendInt(this.buf,
+				int64(dur%time.Second/time.Millisecond), integerBase)
+			this.buf = append(this.buf, 's')
+		}
+		this.appendEnd()
+	}
+	return this
+}
+
 func (this *Log) appendFloat(value float64, bitSize int) {
 	this.buf = strconv.AppendFloat(this.buf, value, floatFormat, floatPrecision, bitSize)
 }
@@ -243,6 +304,40 @@ func (this *Log) appendUintptr(value uintptr) {
 		n += 2
 	}
 	this.buf = append(this.buf, buf[bufLen-n:]...)
+}
+
+func (this *Log) appendDate(tm time.Time) {
+	this.reserveDate()
+	this.fillDate(this.buf[len(this.buf)-len(dateHolder):], tm)
+}
+
+func (this *Log) reserveDate() {
+	this.buf = append(this.buf, dateHolder...)
+}
+
+func (this *Log) fillDate(dst []byte, tm time.Time) {
+	year, month, day := tm.Date()
+	fillInt(dst[yearBegin:yearEnd], year)
+	fillInt(dst[monthBegin:monthEnd], int(month))
+	fillInt(dst[dayBegin:dayEnd], day)
+}
+
+func (this *Log) appendTime(tm time.Time) {
+	this.reserveTime()
+	this.fillTime(this.buf[len(this.buf)-len(timeHolder):], tm)
+}
+
+func (this *Log) reserveTime() {
+	this.buf = append(this.buf, timeHolder...)
+}
+
+func (this *Log) fillTime(dst []byte, tm time.Time) {
+	hour, min, sec := tm.Clock()
+	nano := tm.Nanosecond()
+	fillInt(dst[hourBegin:hourEnd], hour)
+	fillInt(dst[minuteBegin:minuteEnd], min)
+	fillInt(dst[secondBegin:secondEnd], sec)
+	fillInt(dst[microBegin:microEnd], nano/int(time.Microsecond))
 }
 
 func (this *Log) appendKey(key string) {

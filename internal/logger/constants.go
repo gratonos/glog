@@ -11,6 +11,14 @@ const (
 )
 
 const (
+	dateHolder = "0000-00-00"
+	yearBegin  = 0
+	yearEnd    = 4
+	monthBegin = 5
+	monthEnd   = 7
+	dayBegin   = 8
+	dayEnd     = len(dateHolder)
+
 	timeHolder  = "00:00:00.000000"
 	hourBegin   = 0
 	hourEnd     = 2
@@ -23,7 +31,7 @@ const (
 )
 
 const (
-	floatFormat    = 'f'
+	floatFormat    = 'g'
 	floatPrecision = -1
 	integerBase    = 10
 )
