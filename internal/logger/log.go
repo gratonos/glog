@@ -143,10 +143,12 @@ func (this *Log) appendMsg(msg string) {
 }
 
 func (this *Log) fillTimestamp(tm time.Time) {
-	fillInt(this.buf[hourBegin:hourEnd], tm.Hour())
-	fillInt(this.buf[minuteBegin:microEnd], tm.Minute())
-	fillInt(this.buf[secondBegin:secondEnd], tm.Second())
-	fillInt(this.buf[microBegin:microEnd], tm.Nanosecond()/1000)
+	hour, min, sec := tm.Clock()
+	nano := tm.Nanosecond()
+	fillInt(this.buf[hourBegin:hourEnd], hour)
+	fillInt(this.buf[minuteBegin:minuteEnd], min)
+	fillInt(this.buf[secondBegin:secondEnd], sec)
+	fillInt(this.buf[microBegin:microEnd], nano/1000)
 }
 
 func (this *Log) appendInt64Field(key string, value int64) *Log {
