@@ -32,6 +32,14 @@ func putLog(log *Log) {
 	logPool.Put(log)
 }
 
+func (this *Log) Bool(key string, value bool) *Log {
+	if value {
+		return this.appendStrField(key, "true")
+	} else {
+		return this.appendStrField(key, "false")
+	}
+}
+
 func (this *Log) Int(key string, value int) *Log {
 	return this.appendInt64Field(key, int64(value))
 }
@@ -70,6 +78,38 @@ func (this *Log) Uint32(key string, value uint32) *Log {
 
 func (this *Log) Uint64(key string, value uint64) *Log {
 	return this.appendUint64Field(key, value)
+}
+
+func (this *Log) Float32(key string, value float32) *Log {
+	return this.appendFloatField(key, float64(value), 32)
+}
+
+func (this *Log) Float64(key string, value float64) *Log {
+	return this.appendFloatField(key, value, 64)
+}
+
+func (this *Log) Complex64(key string, value complex64) *Log {
+	return this.appendComplexField(key, complex128(value), 32)
+}
+
+func (this *Log) Complex128(key string, value complex128) *Log {
+	return this.appendComplexField(key, value, 64)
+}
+
+func (this *Log) Byte(key string, value byte) *Log {
+	return this.appendByteField(key, value)
+}
+
+func (this *Log) Rune(key string, value rune) *Log {
+	return this.appendStrField(key, string(value))
+}
+
+func (this *Log) Uintptr(key string, value uintptr) *Log {
+	return this.appendUintptrField(key, value)
+}
+
+func (this *Log) Str(key, value string) *Log {
+	return this.appendStrField(key, value)
 }
 
 func (this *Log) Commit() {
@@ -112,7 +152,7 @@ func (this *Log) fillTimestamp(tm time.Time) {
 func (this *Log) appendInt64Field(key string, value int64) *Log {
 	if this != nil {
 		this.appendKey(key)
-		this.buf = strconv.AppendInt(this.buf, value, 10)
+		this.buf = strconv.AppendInt(this.buf, value, integerBase)
 		this.appendEnd()
 	}
 	return this
@@ -121,10 +161,86 @@ func (this *Log) appendInt64Field(key string, value int64) *Log {
 func (this *Log) appendUint64Field(key string, value uint64) *Log {
 	if this != nil {
 		this.appendKey(key)
-		this.buf = strconv.AppendUint(this.buf, value, 10)
+		this.buf = strconv.AppendUint(this.buf, value, integerBase)
 		this.appendEnd()
 	}
 	return this
+}
+
+func (this *Log) appendFloatField(key string, value float64, bitSize int) *Log {
+	if this != nil {
+		this.appendKey(key)
+		this.appendFloat(value, bitSize)
+		this.appendEnd()
+	}
+	return this
+}
+
+func (this *Log) appendComplexField(key string, value complex128, bitSize int) *Log {
+	if this != nil {
+		this.appendKey(key)
+		this.appendFloat(real(value), bitSize)
+		this.buf = append(this.buf, '+')
+		this.appendFloat(imag(value), bitSize)
+		this.buf = append(this.buf, 'i')
+		this.appendEnd()
+	}
+	return this
+}
+
+func (this *Log) appendByteField(key string, value byte) *Log {
+	if this != nil {
+		this.appendKey(key)
+		this.appendByte(value)
+		this.appendEnd()
+	}
+	return this
+}
+
+func (this *Log) appendUintptrField(key string, value uintptr) *Log {
+	if this != nil {
+		this.appendKey(key)
+		this.buf = append(this.buf, "0x"...)
+		this.appendUintptr(value)
+		this.appendEnd()
+	}
+	return this
+}
+
+func (this *Log) appendStrField(key, value string) *Log {
+	if this != nil {
+		this.appendKey(key)
+		this.buf = append(this.buf, value...)
+		this.appendEnd()
+	}
+	return this
+}
+
+func (this *Log) appendFloat(value float64, bitSize int) {
+	this.buf = strconv.AppendFloat(this.buf, value, floatFormat, floatPrecision, bitSize)
+}
+
+func (this *Log) appendByte(value byte) {
+	this.buf = append(this.buf, byteReps[value]...)
+}
+
+func (this *Log) appendUintptr(value uintptr) {
+	if value == 0 {
+		this.buf = append(this.buf, "00"...)
+		return
+	}
+
+	const bufLen = 16
+	var buf [bufLen]byte
+	n := 0
+	for value != 0 {
+		rep := byteReps[value&0xff]
+		buf[bufLen-n-1] = rep[1]
+		buf[bufLen-n-2] = rep[0]
+		value >>= 8
+		n += 2
+	}
+	this.buf = append(this.buf, buf[bufLen-n:]...)
 }
 
 func (this *Log) appendKey(key string) {
@@ -156,22 +272,12 @@ func (this *Log) appendMsgRightBound() {
 
 // assert(n >= 0 && len(buf) >= digits(n) && len(buf) % 2 == 0)
 func fillInt(buf []byte, n int) {
-	const smallsString = "00010203040506070809" +
-		"10111213141516171819" +
-		"20212223242526272829" +
-		"30313233343536373839" +
-		"40414243444546474849" +
-		"50515253545556575859" +
-		"60616263646566676869" +
-		"70717273747576777879" +
-		"80818283848586878889" +
-		"90919293949596979899"
 	i := len(buf)
 	for n > 0 {
 		i -= 2
-		j := (n % 100) << 1
-		buf[i+1] = smallsString[j+1]
-		buf[i+0] = smallsString[j+0]
+		j := n % 100
+		buf[i+1] = smallIntReps[j][1]
+		buf[i+0] = smallIntReps[j][0]
 		n /= 100
 	}
 }

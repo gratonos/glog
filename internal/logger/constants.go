@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"fmt"
+
 	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
@@ -20,11 +22,29 @@ const (
 	microEnd    = len(timeHolder)
 )
 
-var levelNames = []string{
+const (
+	floatFormat    = 'f'
+	floatPrecision = -1
+	integerBase    = 10
+)
+
+var levelNames = [...]string{
 	iface.Trace: "TRACE",
 	iface.Debug: "DEBUG",
 	iface.Info:  "INFO ",
 	iface.Warn:  "WARN ",
 	iface.Error: "ERROR",
 	iface.Fatal: "FATAL",
+}
+
+var smallIntReps [100]string
+var byteReps [256]string
+
+func init() {
+	for i := range smallIntReps {
+		smallIntReps[i] = fmt.Sprintf("%02d", i)
+	}
+	for i := range byteReps {
+		byteReps[i] = fmt.Sprintf("%02x", i)
+	}
 }
