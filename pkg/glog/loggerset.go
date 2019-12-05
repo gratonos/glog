@@ -15,6 +15,14 @@ var (
 )
 
 func Logger(name string) *logger.Logger {
+	return logger.NewLogger(getInternalLogger(name), callerPkg())
+}
+
+func SugaredLogger(name string) *logger.SugaredLogger {
+	return logger.NewSugaredLogger(getInternalLogger(name), callerPkg())
+}
+
+func getInternalLogger(name string) *ilog.Logger {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -24,7 +32,7 @@ func Logger(name string) *logger.Logger {
 		loggers[name] = log
 	}
 
-	return logger.New(log, callerPkg())
+	return log
 }
 
 func callerPkg() string {

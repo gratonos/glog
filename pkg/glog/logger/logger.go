@@ -13,7 +13,7 @@ type Logger struct {
 	marker string
 }
 
-func New(log *logger.Logger, pkg string) *Logger {
+func NewLogger(log *logger.Logger, pkg string) *Logger {
 	return &Logger{
 		log: log,
 		pkg: pkg,
