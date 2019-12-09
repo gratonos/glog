@@ -5,34 +5,34 @@ import (
 	"strings"
 	"sync"
 
-	ilog "github.com/gratonos/glog/internal/logger"
+	ilogger "github.com/gratonos/glog/internal/logger"
 	"github.com/gratonos/glog/pkg/glog/logger"
 )
 
 var (
-	loggers = map[string]*ilog.Logger{}
+	loggers = map[string]*ilogger.Logger{}
 	lock    sync.Mutex
 )
 
 func Logger(name string) *logger.Logger {
-	return logger.NewLogger(getInternalLogger(name), callerPkg())
+	return logger.NewLogger(internalLogger(name), callerPkg())
 }
 
 func SugaredLogger(name string) *logger.SugaredLogger {
-	return logger.NewSugaredLogger(getInternalLogger(name), callerPkg())
+	return logger.NewSugaredLogger(internalLogger(name), callerPkg())
 }
 
-func getInternalLogger(name string) *ilog.Logger {
+func internalLogger(name string) *ilogger.Logger {
 	lock.Lock()
 	defer lock.Unlock()
 
-	log := loggers[name]
-	if log == nil {
-		log = ilog.New()
-		loggers[name] = log
+	logger := loggers[name]
+	if logger == nil {
+		logger = ilogger.New()
+		loggers[name] = logger
 	}
 
-	return log
+	return logger
 }
 
 func callerPkg() string {

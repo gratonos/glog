@@ -5,11 +5,12 @@ import (
 	"sync"
 	"time"
 
+	ilogger "github.com/gratonos/glog/internal/logger"
 	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
 type Log struct {
-	logger *Logger
+	logger *ilogger.Logger
 	buf    []byte
 }
 
@@ -21,15 +22,28 @@ var logPool = sync.Pool{
 	},
 }
 
-func getLog(logger *Logger) *Log {
+func genLog(logger *ilogger.Logger, level iface.Level, pkg, marker, msg string) *Log {
+	if logger.Level() > level {
+		return nil
+	}
+
+	log := getLog(logger)
+	log.reserveTimestamp()
+	log.appendLevel(level)
+	log.appendInfo(pkg)
+	if marker != "" {
+		log.appendInfo(marker)
+	}
+	log.appendMsg(msg)
+
+	return log
+}
+
+func getLog(logger *ilogger.Logger) *Log {
 	log := logPool.Get().(*Log)
 	log.logger = logger
 	log.buf = log.buf[:0]
 	return log
-}
-
-func putLog(log *Log) {
-	logPool.Put(log)
 }
 
 func (this *Log) Bool(key string, value bool) *Log {
@@ -138,15 +152,11 @@ func (this *Log) Commit() {
 	}
 
 	this.appendNewLine()
-	this.logger.commit(this)
+	this.logger.Commit(this.emit, this.put)
 }
 
 func (this *Log) reserveTimestamp() {
 	this.reserveTime()
-}
-
-func (this *Log) fillTimestamp(tm time.Time) {
-	this.fillTime(this.buf[:len(timeHolder)], tm)
 }
 
 func (this *Log) appendLevel(level iface.Level) {
@@ -308,36 +318,20 @@ func (this *Log) appendUintptr(value uintptr) {
 
 func (this *Log) appendDate(tm time.Time) {
 	this.reserveDate()
-	this.fillDate(this.buf[len(this.buf)-len(dateHolder):], tm)
+	fillDate(this.buf[len(this.buf)-len(dateHolder):], tm)
 }
 
 func (this *Log) reserveDate() {
 	this.buf = append(this.buf, dateHolder...)
 }
 
-func (this *Log) fillDate(dst []byte, tm time.Time) {
-	year, month, day := tm.Date()
-	fillInt(dst[yearBegin:yearEnd], year)
-	fillInt(dst[monthBegin:monthEnd], int(month))
-	fillInt(dst[dayBegin:dayEnd], day)
-}
-
 func (this *Log) appendTime(tm time.Time) {
 	this.reserveTime()
-	this.fillTime(this.buf[len(this.buf)-len(timeHolder):], tm)
+	fillTime(this.buf[len(this.buf)-len(timeHolder):], tm)
 }
 
 func (this *Log) reserveTime() {
 	this.buf = append(this.buf, timeHolder...)
-}
-
-func (this *Log) fillTime(dst []byte, tm time.Time) {
-	hour, min, sec := tm.Clock()
-	nano := tm.Nanosecond()
-	fillInt(dst[hourBegin:hourEnd], hour)
-	fillInt(dst[minuteBegin:minuteEnd], min)
-	fillInt(dst[secondBegin:secondEnd], sec)
-	fillInt(dst[microBegin:microEnd], nano/int(time.Microsecond))
 }
 
 func (this *Log) appendKey(key string) {
@@ -365,6 +359,31 @@ func (this *Log) appendMsgLeftBound() {
 
 func (this *Log) appendMsgRightBound() {
 	this.buf = append(this.buf, '>')
+}
+
+func (this *Log) emit(tm time.Time) []byte {
+	fillTime(this.buf[:len(timeHolder)], tm)
+	return this.buf
+}
+
+func (this *Log) put() {
+	logPool.Put(this)
+}
+
+func fillDate(dst []byte, tm time.Time) {
+	year, month, day := tm.Date()
+	fillInt(dst[yearBegin:yearEnd], year)
+	fillInt(dst[monthBegin:monthEnd], int(month))
+	fillInt(dst[dayBegin:dayEnd], day)
+}
+
+func fillTime(dst []byte, tm time.Time) {
+	hour, min, sec := tm.Clock()
+	nano := tm.Nanosecond()
+	fillInt(dst[hourBegin:hourEnd], hour)
+	fillInt(dst[minuteBegin:minuteEnd], min)
+	fillInt(dst[secondBegin:secondEnd], sec)
+	fillInt(dst[microBegin:microEnd], nano/int(time.Microsecond))
 }
 
 // assert(n >= 0 && len(buf) >= digits(n) && len(buf) % 2 == 0)

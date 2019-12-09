@@ -23,21 +23,8 @@ func New() *Logger {
 	}
 }
 
-func (this *Logger) GenLog(level iface.Level, pkg, marker, msg string) *Log {
-	if this.level.Get() > level {
-		return nil
-	}
-
-	log := getLog(this)
-	log.reserveTimestamp()
-	log.appendLevel(level)
-	log.appendInfo(pkg)
-	if marker != "" {
-		log.appendInfo(marker)
-	}
-	log.appendMsg(msg)
-
-	return log
+func (this *Logger) Level() iface.Level {
+	return this.level.Get()
 }
 
 func (this *Logger) Config() iface.Config {
@@ -63,11 +50,11 @@ func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config)
 	return this.SetConfig(updater(this.config))
 }
 
-func (this *Logger) commit(log *Log) {
+func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 	tm := time.Now()
-	log.fillTimestamp(tm)
+	log := emit(tm)
 
-	os.Stderr.Write(log.buf)
+	os.Stderr.Write(log)
 
-	putLog(log)
+	done()
 }
