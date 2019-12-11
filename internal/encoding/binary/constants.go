@@ -26,6 +26,8 @@ const (
 	floatValue
 	complexValue
 	stringValue
+	timeValue
+	durationValue
 )
 
 const binaryVersion = 0
