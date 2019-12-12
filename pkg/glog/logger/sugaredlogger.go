@@ -10,7 +10,7 @@ import (
 type SugaredLogger struct {
 	logger *ilogger.Logger
 	pkg    string
-	marker string
+	mark   bool
 }
 
 func NewSugaredLogger(logger *ilogger.Logger, pkg string) *SugaredLogger {
@@ -21,7 +21,7 @@ func NewSugaredLogger(logger *ilogger.Logger, pkg string) *SugaredLogger {
 }
 
 func (self SugaredLogger) WithMark() *SugaredLogger {
-	self.marker = logMarker
+	self.mark = true
 	return &self
 }
 
@@ -29,62 +29,62 @@ func (this *SugaredLogger) Log(level iface.Level, args ...interface{}) {
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	genLog(this.logger, level, this.pkg, this.marker, fmt.Sprint(args...)).Commit()
+	this.genLog(level).Commit(fmt.Sprint(args...))
 }
 
 func (this *SugaredLogger) Logf(level iface.Level, fmtstr string, args ...interface{}) {
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	genLog(this.logger, level, this.pkg, this.marker, fmt.Sprintf(fmtstr, args...)).Commit()
+	this.genLog(level).Commit(fmt.Sprintf(fmtstr, args...))
 }
 
 func (this *SugaredLogger) Trace(args ...interface{}) {
-	genLog(this.logger, iface.Trace, this.pkg, this.marker, fmt.Sprint(args...)).Commit()
+	this.genLog(iface.Trace).Commit(fmt.Sprint(args...))
 }
 
 func (this *SugaredLogger) Tracef(fmtstr string, args ...interface{}) {
-	genLog(this.logger, iface.Trace, this.pkg, this.marker, fmt.Sprintf(fmtstr, args...)).Commit()
+	this.genLog(iface.Trace).Commit(fmt.Sprintf(fmtstr, args...))
 }
 
 func (this *SugaredLogger) Debug(args ...interface{}) {
-	genLog(this.logger, iface.Debug, this.pkg, this.marker, fmt.Sprint(args...)).Commit()
+	this.genLog(iface.Debug).Commit(fmt.Sprint(args...))
 }
 
 func (this *SugaredLogger) Debugf(fmtstr string, args ...interface{}) {
-	genLog(this.logger, iface.Debug, this.pkg, this.marker, fmt.Sprintf(fmtstr, args...)).Commit()
+	this.genLog(iface.Debug).Commit(fmt.Sprintf(fmtstr, args...))
 }
 
 func (this *SugaredLogger) Info(args ...interface{}) {
-	genLog(this.logger, iface.Info, this.pkg, this.marker, fmt.Sprint(args...)).Commit()
+	this.genLog(iface.Info).Commit(fmt.Sprint(args...))
 }
 
 func (this *SugaredLogger) Infof(fmtstr string, args ...interface{}) {
-	genLog(this.logger, iface.Info, this.pkg, this.marker, fmt.Sprintf(fmtstr, args...)).Commit()
+	this.genLog(iface.Info).Commit(fmt.Sprintf(fmtstr, args...))
 }
 
 func (this *SugaredLogger) Warn(args ...interface{}) {
-	genLog(this.logger, iface.Warn, this.pkg, this.marker, fmt.Sprint(args...)).Commit()
+	this.genLog(iface.Warn).Commit(fmt.Sprint(args...))
 }
 
 func (this *SugaredLogger) Warnf(fmtstr string, args ...interface{}) {
-	genLog(this.logger, iface.Warn, this.pkg, this.marker, fmt.Sprintf(fmtstr, args...)).Commit()
+	this.genLog(iface.Warn).Commit(fmt.Sprintf(fmtstr, args...))
 }
 
 func (this *SugaredLogger) Error(args ...interface{}) {
-	genLog(this.logger, iface.Error, this.pkg, this.marker, fmt.Sprint(args...)).Commit()
+	this.genLog(iface.Error).Commit(fmt.Sprint(args...))
 }
 
 func (this *SugaredLogger) Errorf(fmtstr string, args ...interface{}) {
-	genLog(this.logger, iface.Error, this.pkg, this.marker, fmt.Sprintf(fmtstr, args...)).Commit()
+	this.genLog(iface.Error).Commit(fmt.Sprintf(fmtstr, args...))
 }
 
 func (this *SugaredLogger) Fatal(args ...interface{}) {
-	genLog(this.logger, iface.Fatal, this.pkg, this.marker, fmt.Sprint(args...)).Commit()
+	this.genLog(iface.Fatal).Commit(fmt.Sprint(args...))
 }
 
 func (this *SugaredLogger) Fatalf(fmtstr string, args ...interface{}) {
-	genLog(this.logger, iface.Fatal, this.pkg, this.marker, fmt.Sprintf(fmtstr, args...)).Commit()
+	this.genLog(iface.Fatal).Commit(fmt.Sprintf(fmtstr, args...))
 }
 
 func (this *SugaredLogger) Config() iface.Config {
@@ -97,4 +97,17 @@ func (this *SugaredLogger) SetConfig(config iface.Config) error {
 
 func (this *SugaredLogger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
 	return this.logger.UpdateConfig(updater)
+}
+
+func (this *SugaredLogger) genLog(level iface.Level) *Log {
+	if this.logger.Level() > level {
+		return nil
+	}
+
+	info := &preInfo{
+		Pkg:   this.pkg,
+		Level: uint8(level),
+		Mark:  this.mark,
+	}
+	return genLog(this.logger, info)
 }

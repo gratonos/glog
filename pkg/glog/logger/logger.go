@@ -10,7 +10,7 @@ import (
 type Logger struct {
 	logger *ilogger.Logger
 	pkg    string
-	marker string
+	mark   bool
 }
 
 func NewLogger(logger *ilogger.Logger, pkg string) *Logger {
@@ -21,39 +21,39 @@ func NewLogger(logger *ilogger.Logger, pkg string) *Logger {
 }
 
 func (self Logger) WithMark() *Logger {
-	self.marker = logMarker
+	self.mark = true
 	return &self
 }
 
-func (this *Logger) Log(level iface.Level, msg string) *Log {
+func (this *Logger) Log(level iface.Level) *Log {
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	return genLog(this.logger, level, this.pkg, this.marker, msg)
+	return this.genLog(level)
 }
 
-func (this *Logger) Trace(msg string) *Log {
-	return genLog(this.logger, iface.Trace, this.pkg, this.marker, msg)
+func (this *Logger) Trace() *Log {
+	return this.genLog(iface.Trace)
 }
 
-func (this *Logger) Debug(msg string) *Log {
-	return genLog(this.logger, iface.Debug, this.pkg, this.marker, msg)
+func (this *Logger) Debug() *Log {
+	return this.genLog(iface.Debug)
 }
 
-func (this *Logger) Info(msg string) *Log {
-	return genLog(this.logger, iface.Info, this.pkg, this.marker, msg)
+func (this *Logger) Info() *Log {
+	return this.genLog(iface.Info)
 }
 
-func (this *Logger) Warn(msg string) *Log {
-	return genLog(this.logger, iface.Warn, this.pkg, this.marker, msg)
+func (this *Logger) Warn() *Log {
+	return this.genLog(iface.Warn)
 }
 
-func (this *Logger) Error(msg string) *Log {
-	return genLog(this.logger, iface.Error, this.pkg, this.marker, msg)
+func (this *Logger) Error() *Log {
+	return this.genLog(iface.Error)
 }
 
-func (this *Logger) Fatal(msg string) *Log {
-	return genLog(this.logger, iface.Fatal, this.pkg, this.marker, msg)
+func (this *Logger) Fatal() *Log {
+	return this.genLog(iface.Fatal)
 }
 
 func (this *Logger) Config() iface.Config {
@@ -66,4 +66,17 @@ func (this *Logger) SetConfig(config iface.Config) error {
 
 func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
 	return this.logger.UpdateConfig(updater)
+}
+
+func (this *Logger) genLog(level iface.Level) *Log {
+	if this.logger.Level() > level {
+		return nil
+	}
+
+	info := &preInfo{
+		Pkg:   this.pkg,
+		Level: uint8(level),
+		Mark:  this.mark,
+	}
+	return genLog(this.logger, info)
 }
