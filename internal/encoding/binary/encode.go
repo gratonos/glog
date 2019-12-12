@@ -50,10 +50,8 @@ func AppendLine(dst []byte, line int) []byte {
 	return dst
 }
 
-func AppendMark(dst []byte, mark bool) []byte {
-	dst = appendFieldKind(dst, markField)
-	dst = appendBool(dst, mark)
-	return dst
+func AppendMark(dst []byte) []byte {
+	return appendFieldKind(dst, markField)
 }
 
 func AppendMsg(dst []byte, msg string) []byte {

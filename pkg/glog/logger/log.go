@@ -14,7 +14,6 @@ type preInfo struct {
 	File  string
 	Line  int
 	Level uint8
-	Mark  bool
 }
 
 type Log struct {
@@ -194,6 +193,13 @@ func (this *Log) Duration(key string, value time.Duration) *Log {
 	return this
 }
 
+func (this *Log) Mark() *Log {
+	if this != nil {
+		this.buf = binary.AppendMark(this.buf)
+	}
+	return this
+}
+
 func (this *Log) Commit(msg string) {
 	if this != nil {
 		this.buf = binary.AppendMsg(this.buf, msg)
@@ -213,9 +219,6 @@ func (this *Log) appendPreInfo(info *preInfo) {
 	}
 	if info.Line != 0 {
 		this.buf = binary.AppendLine(this.buf, info.Line)
-	}
-	if info.Mark {
-		this.buf = binary.AppendMark(this.buf, info.Mark)
 	}
 }
 

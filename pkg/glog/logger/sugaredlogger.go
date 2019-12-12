@@ -10,7 +10,6 @@ import (
 type SugaredLogger struct {
 	logger *ilogger.Logger
 	pkg    string
-	mark   bool
 }
 
 func NewSugaredLogger(logger *ilogger.Logger, pkg string) *SugaredLogger {
@@ -18,11 +17,6 @@ func NewSugaredLogger(logger *ilogger.Logger, pkg string) *SugaredLogger {
 		logger: logger,
 		pkg:    pkg,
 	}
-}
-
-func (self SugaredLogger) WithMark() *SugaredLogger {
-	self.mark = true
-	return &self
 }
 
 func (this *SugaredLogger) Log(level iface.Level, args ...interface{}) {
@@ -121,7 +115,6 @@ func (this *SugaredLogger) genLog(level iface.Level) *Log {
 	info := &preInfo{
 		Pkg:   this.pkg,
 		Level: uint8(level),
-		Mark:  this.mark,
 	}
 	return genLog(this.logger, info)
 }
