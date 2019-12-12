@@ -3,14 +3,15 @@ package binary
 type fieldKind uint8
 
 const (
-	timestampField fieldKind = iota
+	timeField fieldKind = iota
 	levelField
 	pkgField
-	fileNameField
-	fileLineField
+	funcField
+	fileField
+	lineField
 	markField
 	msgField
-	keyValuePairField
+	keyValueField
 	endIdentity
 )
 

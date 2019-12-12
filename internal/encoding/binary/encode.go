@@ -10,12 +10,12 @@ import (
 
 func AppendBegin(dst []byte) []byte {
 	dst = appendUint8(dst, binaryVersion)
-	dst = appendUint32(dst, 0) // reserve for load len
+	dst = appendUint32(dst, 0) // reserved for size of load
 	return dst
 }
 
-func AppendTimestamp(dst []byte, tm time.Time) []byte {
-	dst = appendFieldKind(dst, timestampField)
+func AppendTime(dst []byte, tm time.Time) []byte {
+	dst = appendFieldKind(dst, timeField)
 	dst = appendUint64(dst, uint64(tm.UnixNano()))
 	return dst
 }
@@ -32,14 +32,20 @@ func AppendPkg(dst []byte, pkg string) []byte {
 	return dst
 }
 
-func AppendFileName(dst []byte, name string) []byte {
-	dst = appendFieldKind(dst, fileNameField)
-	dst = appendString(dst, name)
+func AppendFunc(dst []byte, fn string) []byte {
+	dst = appendFieldKind(dst, funcField)
+	dst = appendString(dst, fn)
 	return dst
 }
 
-func AppendFileLine(dst []byte, line int) []byte {
-	dst = appendFieldKind(dst, fileLineField)
+func AppendFile(dst []byte, file string) []byte {
+	dst = appendFieldKind(dst, fileField)
+	dst = appendString(dst, file)
+	return dst
+}
+
+func AppendLine(dst []byte, line int) []byte {
+	dst = appendFieldKind(dst, lineField)
 	dst = appendUint32(dst, uint32(line))
 	return dst
 }
@@ -196,7 +202,7 @@ func appendNumberKVMeta(dst []byte, key string, kind valueKind,
 }
 
 func appendKVMeta(dst []byte, key string, kind valueKind) []byte {
-	dst = appendFieldKind(dst, keyValuePairField)
+	dst = appendFieldKind(dst, keyValueField)
 	dst = appendKey(dst, key)
 	dst = appendValueKind(dst, kind)
 	return dst
