@@ -1,5 +1,9 @@
 package binary
 
+import (
+	"math"
+)
+
 type fieldKind uint8
 
 const (
@@ -12,7 +16,8 @@ const (
 	markField
 	msgField
 	keyValueField
-	endIdentity
+
+	endIdentifier fieldKind = math.MaxUint8
 )
 
 type valueKind uint8
@@ -21,14 +26,22 @@ const (
 	boolValue valueKind = iota
 	byteValue
 	runeValue
-	intValue
-	uintValue
-	uintptrValue
-	floatValue
-	complexValue
+	int8Value
+	int16Value
+	int32Value
+	int64Value
+	uint8Value
+	uint16Value
+	uint32Value
+	uint64Value
+	uintptrValue // coerced into uint64
+	float32Value
+	float64Value
+	complex64Value
+	complex128Value
 	stringValue
-	timeValue
-	durationValue
+	timeValue     // int64
+	durationValue // int64
 )
 
 const binaryVersion = 0

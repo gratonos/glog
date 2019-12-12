@@ -28,19 +28,19 @@ func AppendLevel(dst []byte, level uint8) []byte {
 
 func AppendPkg(dst []byte, pkg string) []byte {
 	dst = appendFieldKind(dst, pkgField)
-	dst = appendString(dst, pkg)
+	dst = appendShortString(dst, pkg)
 	return dst
 }
 
 func AppendFunc(dst []byte, fn string) []byte {
 	dst = appendFieldKind(dst, funcField)
-	dst = appendString(dst, fn)
+	dst = appendShortString(dst, fn)
 	return dst
 }
 
 func AppendFile(dst []byte, file string) []byte {
 	dst = appendFieldKind(dst, fileField)
-	dst = appendString(dst, file)
+	dst = appendShortString(dst, file)
 	return dst
 }
 
@@ -80,96 +80,94 @@ func AppendRuneKV(dst []byte, key string, value rune) []byte {
 	return dst
 }
 
-func AppendInt8KV(dst []byte, key string, value int8, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, intValue, unsafe.Sizeof(value), format)
+func AppendInt8KV(dst []byte, key string, value int8) []byte {
+	dst = appendKVMeta(dst, key, int8Value)
 	dst = appendUint8(dst, uint8(value))
 	return dst
 }
 
-func AppendInt16KV(dst []byte, key string, value int16, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, intValue, unsafe.Sizeof(value), format)
+func AppendInt16KV(dst []byte, key string, value int16) []byte {
+	dst = appendKVMeta(dst, key, int16Value)
 	dst = appendUint16(dst, uint16(value))
 	return dst
 }
 
-func AppendInt32KV(dst []byte, key string, value int32, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, intValue, unsafe.Sizeof(value), format)
+func AppendInt32KV(dst []byte, key string, value int32) []byte {
+	dst = appendKVMeta(dst, key, int32Value)
 	dst = appendUint32(dst, uint32(value))
 	return dst
 }
 
-func AppendInt64KV(dst []byte, key string, value int64, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, intValue, unsafe.Sizeof(value), format)
+func AppendInt64KV(dst []byte, key string, value int64) []byte {
+	dst = appendKVMeta(dst, key, int64Value)
 	dst = appendUint64(dst, uint64(value))
 	return dst
 }
 
-func AppendUint8KV(dst []byte, key string, value uint8, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, uintValue, unsafe.Sizeof(value), format)
+func AppendUint8KV(dst []byte, key string, value uint8) []byte {
+	dst = appendKVMeta(dst, key, uint8Value)
 	dst = appendUint8(dst, value)
 	return dst
 }
 
-func AppendUint16KV(dst []byte, key string, value uint16, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, uintValue, unsafe.Sizeof(value), format)
+func AppendUint16KV(dst []byte, key string, value uint16) []byte {
+	dst = appendKVMeta(dst, key, uint16Value)
 	dst = appendUint16(dst, value)
 	return dst
 }
 
-func AppendUint32KV(dst []byte, key string, value uint32, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, uintValue, unsafe.Sizeof(value), format)
+func AppendUint32KV(dst []byte, key string, value uint32) []byte {
+	dst = appendKVMeta(dst, key, uint32Value)
 	dst = appendUint32(dst, value)
 	return dst
 }
 
-func AppendUint64KV(dst []byte, key string, value uint64, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, uintValue, unsafe.Sizeof(value), format)
+func AppendUint64KV(dst []byte, key string, value uint64) []byte {
+	dst = appendKVMeta(dst, key, uint64Value)
 	dst = appendUint64(dst, value)
 	return dst
 }
 
-func AppendUintptrKV(dst []byte, key string, value uintptr, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, uintptrValue, unsafe.Sizeof(uint64(value)), format)
+func AppendUintptrKV(dst []byte, key string, value uintptr) []byte {
+	dst = appendKVMeta(dst, key, uintptrValue)
 	dst = appendUint64(dst, uint64(value))
 	return dst
 }
 
-func AppendFloat32KV(dst []byte, key string, value float32, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, floatValue, unsafe.Sizeof(value), format)
+func AppendFloat32KV(dst []byte, key string, value float32) []byte {
+	dst = appendKVMeta(dst, key, float32Value)
 	dst = appendFloat32(dst, value)
 	return dst
 }
 
-func AppendFloat64KV(dst []byte, key string, value float64, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, floatValue, unsafe.Sizeof(value), format)
+func AppendFloat64KV(dst []byte, key string, value float64) []byte {
+	dst = appendKVMeta(dst, key, float64Value)
 	dst = appendFloat64(dst, value)
 	return dst
 }
 
-func AppendComplex64KV(dst []byte, key string, value complex64, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, complexValue, unsafe.Sizeof(value), format)
+func AppendComplex64KV(dst []byte, key string, value complex64) []byte {
+	dst = appendKVMeta(dst, key, complex64Value)
 	dst = appendFloat32(dst, real(value))
 	dst = appendFloat32(dst, imag(value))
 	return dst
 }
 
-func AppendComplex128KV(dst []byte, key string, value complex128, format string) []byte {
-	dst = appendNumberKVMeta(dst, key, complexValue, unsafe.Sizeof(value), format)
+func AppendComplex128KV(dst []byte, key string, value complex128) []byte {
+	dst = appendKVMeta(dst, key, complex128Value)
 	dst = appendFloat64(dst, real(value))
 	dst = appendFloat64(dst, imag(value))
 	return dst
 }
 
-func AppendStringKV(dst []byte, key, value, format string) []byte {
+func AppendStringKV(dst []byte, key, value string) []byte {
 	dst = appendKVMeta(dst, key, stringValue)
-	dst = appendString(dst, format)
 	dst = appendString(dst, value)
 	return dst
 }
 
-func AppendTimeKV(dst []byte, key string, value time.Time, layout string) []byte {
+func AppendTimeKV(dst []byte, key string, value time.Time) []byte {
 	dst = appendKVMeta(dst, key, timeValue)
-	dst = appendString(dst, layout)
 	dst = appendUint64(dst, uint64(value.UnixNano()))
 	return dst
 }
@@ -181,7 +179,7 @@ func AppendDurationKV(dst []byte, key string, value time.Duration) []byte {
 }
 
 func AppendEnd(dst []byte) []byte {
-	dst = appendFieldKind(dst, endIdentity)
+	dst = appendFieldKind(dst, endIdentifier)
 
 	loadLen := len(dst) - sizeOfHeader
 	if loadLen > math.MaxUint32 {
@@ -192,20 +190,23 @@ func AppendEnd(dst []byte) []byte {
 	return dst
 }
 
-func appendNumberKVMeta(dst []byte, key string, kind valueKind,
-	size uintptr, format string) []byte {
-
-	dst = appendKVMeta(dst, key, kind)
-	dst = appendString(dst, format)
-	dst = appendNumberSize(dst, size)
-	return dst
-}
-
 func appendKVMeta(dst []byte, key string, kind valueKind) []byte {
 	dst = appendFieldKind(dst, keyValueField)
 	dst = appendKey(dst, key)
 	dst = appendValueKind(dst, kind)
 	return dst
+}
+
+func appendFieldKind(dst []byte, kind fieldKind) []byte {
+	return append(dst, byte(kind))
+}
+
+func appendKey(dst []byte, key string) []byte {
+	return appendShortString(dst, key)
+}
+
+func appendValueKind(dst []byte, kind valueKind) []byte {
+	return append(dst, byte(kind))
 }
 
 func appendBool(dst []byte, b bool) []byte {
@@ -251,36 +252,17 @@ func appendFloat64(dst []byte, value float64) []byte {
 }
 
 func appendString(dst []byte, str string) []byte {
-	buf := make([]byte, unsafe.Sizeof(uint(0)))
-	size := putUvarint(buf, uint(len(str)))
-	dst = append(dst, byte(size))
-	dst = append(dst, buf[:size]...)
-	dst = append(dst, str...)
+	size := uint16(len(str))
+	buf := make([]byte, unsafe.Sizeof(size))
+	binary.LittleEndian.PutUint16(buf, size)
+	dst = append(dst, buf...)
+	dst = append(dst, str[:size]...)
 	return dst
 }
 
-func appendFieldKind(dst []byte, kind fieldKind) []byte {
-	return append(dst, byte(kind))
-}
-
-func appendValueKind(dst []byte, kind valueKind) []byte {
-	return append(dst, byte(kind))
-}
-
-func appendKey(dst []byte, key string) []byte {
-	return appendString(dst, key)
-}
-
-func appendNumberSize(dst []byte, size uintptr) []byte {
-	return append(dst, byte(size))
-}
-
-func putUvarint(buf []byte, n uint) int {
-	i := 0
-	for n > 0 {
-		buf[i] = byte(n)
-		n >>= 8
-		i++
-	}
-	return i
+func appendShortString(dst []byte, str string) []byte {
+	size := uint8(len(str))
+	dst = append(dst, size)
+	dst = append(dst, str[:size]...)
+	return dst
 }
