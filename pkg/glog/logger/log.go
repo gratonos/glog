@@ -25,8 +25,10 @@ const logBufLen = 512
 
 var logPool = sync.Pool{
 	New: func() interface{} {
+		buf := make([]byte, 0, logBufLen)
+		buf = binary.AppendBinaryMeta(buf)
 		return &Log{
-			buf: make([]byte, 0, logBufLen),
+			buf: buf,
 		}
 	},
 }
@@ -40,7 +42,7 @@ func genLog(logger *ilogger.Logger, info *preInfo) *Log {
 func getLog(logger *ilogger.Logger) *Log {
 	log := logPool.Get().(*Log)
 	log.logger = logger
-	log.buf = log.buf[:0]
+	log.buf = binary.ResetBuf(log.buf)
 	return log
 }
 
@@ -208,7 +210,6 @@ func (this *Log) Commit(msg string) {
 }
 
 func (this *Log) appendPreInfo(info *preInfo) {
-	this.buf = binary.AppendBegin(this.buf)
 	this.buf = binary.AppendLevel(this.buf, info.Level)
 	this.buf = binary.AppendPkg(this.buf, info.Pkg)
 	if len(info.Func) != 0 {

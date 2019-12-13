@@ -4,50 +4,55 @@ import (
 	"math"
 )
 
-type fieldKind uint8
+type FieldKind uint8
 
 const (
-	timeField fieldKind = iota
-	levelField
-	pkgField
-	funcField
-	fileField
-	lineField
-	markField
-	msgField
-	keyValueField
+	Timestamp FieldKind = iota
+	Level
+	Pkg
+	Func
+	File
+	Line
+	Mark
+	Msg
+	KeyValue
 
-	endIdentifier fieldKind = math.MaxUint8
+	End FieldKind = math.MaxUint8
 )
 
-type valueKind uint8
+type ValueKind uint8
 
 const (
-	boolValue valueKind = iota
-	byteValue
-	runeValue
-	int8Value
-	int16Value
-	int32Value
-	int64Value
-	uint8Value
-	uint16Value
-	uint32Value
-	uint64Value
-	uintptrValue // coerced into uint64
-	float32Value
-	float64Value
-	complex64Value
-	complex128Value
-	stringValue
-	timeValue     // int64
-	durationValue // int64
+	Bool ValueKind = iota
+	Byte
+	Rune
+	Int8
+	Int16
+	Int32
+	Int64
+	Uint8
+	Uint16
+	Uint32
+	Uint64
+	Uintptr
+	Float32
+	Float64
+	Complex64
+	Complex128
+	String
+	Time
+	Duration
 )
+
+var binaryMagic = []byte{0x14, 0xf2, 0x79, 0xd3, 0x6b, 0xe7, 0x3d}
 
 const binaryVersion = 0
 
 const (
-	sizeOfVersion = 1
-	sizeOfLoadLen = 4
-	sizeOfHeader  = sizeOfVersion + sizeOfLoadLen
+	sizeOfMagic   = 7
+	sizeOfVersion = 1 // uint8
+	sizeOfLoadLen = 4 // uint32
+
+	loadLenIndex = sizeOfMagic + sizeOfVersion
+	sizeOfHeader = loadLenIndex + sizeOfLoadLen
 )
