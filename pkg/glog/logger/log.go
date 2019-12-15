@@ -21,7 +21,7 @@ type Log struct {
 	buf    []byte
 }
 
-const logBufLen = 512
+const logBufLen = 1024
 
 var logPool = sync.Pool{
 	New: func() interface{} {
