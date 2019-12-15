@@ -2,7 +2,6 @@ package binary
 
 import (
 	"encoding/binary"
-	"fmt"
 	"math"
 	"time"
 	"unsafe"
@@ -11,7 +10,6 @@ import (
 func AppendBinaryMeta(dst []byte) []byte {
 	dst = append(dst, binaryMagic...)
 	dst = appendUint8(dst, binaryVersion)
-	dst = appendUint32(dst, 0) // reserved for size of load
 	return dst
 }
 
@@ -182,15 +180,7 @@ func AppendDurationKV(dst []byte, key string, value time.Duration) []byte {
 }
 
 func AppendEnd(dst []byte) []byte {
-	dst = appendFieldKind(dst, End)
-
-	loadLen := len(dst) - sizeOfHeader
-	if loadLen > math.MaxUint32 {
-		panic(fmt.Sprintf("glog: log buffer is too large, beyond %d bytes", math.MaxUint32))
-	}
-	appendUint32(dst[loadLenIndex:loadLenIndex], uint32(loadLen))
-
-	return dst
+	return appendFieldKind(dst, End)
 }
 
 func appendKVMeta(dst []byte, key string, kind ValueKind) []byte {
@@ -201,7 +191,7 @@ func appendKVMeta(dst []byte, key string, kind ValueKind) []byte {
 }
 
 func appendFieldKind(dst []byte, kind FieldKind) []byte {
-	return append(dst, byte(kind))
+	return appendUint8(dst, uint8(kind))
 }
 
 func appendKey(dst []byte, key string) []byte {
@@ -209,15 +199,15 @@ func appendKey(dst []byte, key string) []byte {
 }
 
 func appendValueKind(dst []byte, kind ValueKind) []byte {
-	return append(dst, byte(kind))
+	return appendUint8(dst, uint8(kind))
 }
 
 func appendBool(dst []byte, b bool) []byte {
+	var n uint8
 	if b {
-		return append(dst, 1)
-	} else {
-		return append(dst, 0)
+		n = 1
 	}
+	return appendUint8(dst, n)
 }
 
 func appendUint8(dst []byte, value uint8) []byte {

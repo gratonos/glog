@@ -50,9 +50,6 @@ const binaryVersion = 0
 
 const (
 	sizeOfMagic   = 7
-	sizeOfVersion = 1 // uint8
-	sizeOfLoadLen = 4 // uint32
-
-	loadLenIndex = sizeOfMagic + sizeOfVersion
-	sizeOfHeader = loadLenIndex + sizeOfLoadLen
+	sizeOfVersion = 1
+	sizeOfHeader  = sizeOfMagic + sizeOfVersion
 )
