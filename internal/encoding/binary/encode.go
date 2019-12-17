@@ -246,16 +246,14 @@ func appendFloat64(dst []byte, value float64) []byte {
 
 func appendString(dst []byte, str string) []byte {
 	size := uint16(len(str))
-	buf := make([]byte, unsafe.Sizeof(size))
-	binary.LittleEndian.PutUint16(buf, size)
-	dst = append(dst, buf...)
+	dst = appendUint16(dst, size)
 	dst = append(dst, str[:size]...)
 	return dst
 }
 
 func appendShortString(dst []byte, str string) []byte {
 	size := uint8(len(str))
-	dst = append(dst, size)
+	dst = appendUint8(dst, size)
 	dst = append(dst, str[:size]...)
 	return dst
 }
