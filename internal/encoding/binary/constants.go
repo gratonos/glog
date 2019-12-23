@@ -17,6 +17,8 @@ const (
 	Msg
 	KeyValue
 
+	MaxFieldKind = KeyValue
+
 	End FieldKind = math.MaxUint8
 )
 
@@ -42,6 +44,10 @@ const (
 	String
 	Time
 	Duration
+
+	MaxValueKind = Duration
+
+	IllegalValueKind ValueKind = math.MaxUint8
 )
 
 var binaryMagic = []byte{0x14, 0xf2, 0x79, 0xd3, 0x6b, 0xe7, 0x3d}
