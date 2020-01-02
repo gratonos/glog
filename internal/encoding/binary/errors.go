@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	decodingErrPrefix = "glog: decode binary record"
+	readingErrPrefix = "glog: read binary record"
 )
 
 type IOError struct {
@@ -19,8 +19,8 @@ func newIOError(err error) *IOError {
 	}
 }
 
-func (err *IOError) Error() string {
-	return fmt.Sprintf("%s: %v", decodingErrPrefix, err.Err)
+func (this *IOError) Error() string {
+	return fmt.Sprintf("%s: %v", readingErrPrefix, this.Err)
 }
 
 type MagicError struct {
@@ -33,8 +33,8 @@ func newMagicError(magic []byte) *MagicError {
 	}
 }
 
-func (err *MagicError) Error() string {
-	return fmt.Sprintf("%s: unmatched magic %02x", decodingErrPrefix, err.Magic)
+func (this *MagicError) Error() string {
+	return fmt.Sprintf("%s: unmatched magic %02x", readingErrPrefix, this.Magic)
 }
 
 type VersionError struct {
@@ -47,8 +47,8 @@ func newVersionError(version uint8) *VersionError {
 	}
 }
 
-func (err *VersionError) Error() string {
-	return fmt.Sprintf("%s: unsupported version %d", decodingErrPrefix, err.Version)
+func (this *VersionError) Error() string {
+	return fmt.Sprintf("%s: unsupported version %d", readingErrPrefix, this.Version)
 }
 
 type FormatError struct {
@@ -61,8 +61,8 @@ func newFormatError(reason string) *FormatError {
 	}
 }
 
-func (err *FormatError) Error() string {
-	return fmt.Sprintf("%s: %v", decodingErrPrefix, err.Reason)
+func (this *FormatError) Error() string {
+	return fmt.Sprintf("%s: %s", readingErrPrefix, this.Reason)
 }
 
-var EOF = errors.New(decodingErrPrefix + ": end of file")
+var EOF = errors.New(readingErrPrefix + ": end of file")

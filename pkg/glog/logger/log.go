@@ -6,6 +6,7 @@ import (
 
 	"github.com/gratonos/glog/internal/encoding/binary"
 	ilogger "github.com/gratonos/glog/internal/logger"
+	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
 type preInfo struct {
@@ -13,7 +14,7 @@ type preInfo struct {
 	Func  string
 	File  string
 	Line  int
-	Level uint8
+	Level iface.Level
 }
 
 type Log struct {
@@ -48,21 +49,21 @@ func getLog(logger *ilogger.Logger) *Log {
 
 func (this *Log) Bool(key string, value bool) *Log {
 	if this != nil {
-		this.buf = binary.AppendBoolKV(this.buf, key, value)
+		this.buf = binary.AppendBoolContext(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Byte(key string, value byte) *Log {
 	if this != nil {
-		this.buf = binary.AppendByteKV(this.buf, key, value)
+		this.buf = binary.AppendByteContext(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Rune(key string, value rune) *Log {
 	if this != nil {
-		this.buf = binary.AppendRuneKV(this.buf, key, value)
+		this.buf = binary.AppendRuneContext(this.buf, key, value)
 	}
 	return this
 }
@@ -73,28 +74,28 @@ func (this *Log) Int(key string, value int) *Log {
 
 func (this *Log) Int8(key string, value int8) *Log {
 	if this != nil {
-		this.buf = binary.AppendInt8KV(this.buf, key, value)
+		this.buf = binary.AppendInt8Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Int16(key string, value int16) *Log {
 	if this != nil {
-		this.buf = binary.AppendInt16KV(this.buf, key, value)
+		this.buf = binary.AppendInt16Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Int32(key string, value int32) *Log {
 	if this != nil {
-		this.buf = binary.AppendInt32KV(this.buf, key, value)
+		this.buf = binary.AppendInt32Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Int64(key string, value int64) *Log {
 	if this != nil {
-		this.buf = binary.AppendInt64KV(this.buf, key, value)
+		this.buf = binary.AppendInt64Context(this.buf, key, value)
 	}
 	return this
 }
@@ -105,70 +106,70 @@ func (this *Log) Uint(key string, value uint) *Log {
 
 func (this *Log) Uint8(key string, value uint8) *Log {
 	if this != nil {
-		this.buf = binary.AppendUint8KV(this.buf, key, value)
+		this.buf = binary.AppendUint8Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Uint16(key string, value uint16) *Log {
 	if this != nil {
-		this.buf = binary.AppendUint16KV(this.buf, key, value)
+		this.buf = binary.AppendUint16Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Uint32(key string, value uint32) *Log {
 	if this != nil {
-		this.buf = binary.AppendUint32KV(this.buf, key, value)
+		this.buf = binary.AppendUint32Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Uint64(key string, value uint64) *Log {
 	if this != nil {
-		this.buf = binary.AppendUint64KV(this.buf, key, value)
+		this.buf = binary.AppendUint64Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Uintptr(key string, value uintptr) *Log {
 	if this != nil {
-		this.buf = binary.AppendUintptrKV(this.buf, key, value)
+		this.buf = binary.AppendUintptrContext(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Float32(key string, value float32) *Log {
 	if this != nil {
-		this.buf = binary.AppendFloat32KV(this.buf, key, value)
+		this.buf = binary.AppendFloat32Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Float64(key string, value float64) *Log {
 	if this != nil {
-		this.buf = binary.AppendFloat64KV(this.buf, key, value)
+		this.buf = binary.AppendFloat64Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Complex64(key string, value complex64) *Log {
 	if this != nil {
-		this.buf = binary.AppendComplex64KV(this.buf, key, value)
+		this.buf = binary.AppendComplex64Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Complex128(key string, value complex128) *Log {
 	if this != nil {
-		this.buf = binary.AppendComplex128KV(this.buf, key, value)
+		this.buf = binary.AppendComplex128Context(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Str(key, value string) *Log {
 	if this != nil {
-		this.buf = binary.AppendStringKV(this.buf, key, value)
+		this.buf = binary.AppendStringContext(this.buf, key, value)
 	}
 	return this
 }
@@ -183,14 +184,14 @@ func (this *Log) Err(err error) *Log {
 
 func (this *Log) Time(key string, value time.Time) *Log {
 	if this != nil {
-		this.buf = binary.AppendTimeKV(this.buf, key, value)
+		this.buf = binary.AppendTimeContext(this.buf, key, value)
 	}
 	return this
 }
 
 func (this *Log) Duration(key string, value time.Duration) *Log {
 	if this != nil {
-		this.buf = binary.AppendDurationKV(this.buf, key, value)
+		this.buf = binary.AppendDurationContext(this.buf, key, value)
 	}
 	return this
 }

@@ -114,7 +114,7 @@ func (this *SugaredLogger) genLog(level iface.Level) *Log {
 
 	info := &preInfo{
 		Pkg:   this.pkg,
-		Level: uint8(level),
+		Level: level,
 	}
 	return genLog(this.logger, info)
 }
