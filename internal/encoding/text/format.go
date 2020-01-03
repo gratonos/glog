@@ -1,0 +1,139 @@
+package text
+
+import (
+	"bytes"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/gratonos/glog/internal/encoding/binary"
+	"github.com/gratonos/glog/pkg/glog/logger/iface"
+)
+
+const (
+	timeLayout = "2006-01-02 15:04:05.000000"
+	separator  = " "
+)
+
+var levelDesc = [...]string{
+	iface.Trace: "TRACE",
+	iface.Debug: "DEBUG",
+	iface.Info:  "INFO ",
+	iface.Warn:  "WARN ",
+	iface.Error: "ERROR",
+	iface.Fatal: "FATAL",
+}
+
+var defaultFormats = [...]string{
+	binary.Bool:       "%t",
+	binary.Byte:       "%#02x",
+	binary.Rune:       "%c",
+	binary.Int8:       "%d",
+	binary.Int16:      "%d",
+	binary.Int32:      "%d",
+	binary.Int64:      "%d",
+	binary.Uint8:      "%d",
+	binary.Uint16:     "%d",
+	binary.Uint32:     "%d",
+	binary.Uint64:     "%d",
+	binary.Uintptr:    "%#x",
+	binary.Float32:    "%g",
+	binary.Float64:    "%g",
+	binary.Complex64:  "%g",
+	binary.Complex128: "%g",
+	binary.String:     "%s",
+	binary.Time:       timeLayout,
+	binary.Duration:   "%s",
+}
+
+func FormatRecord(record *binary.Record, coloring bool) []byte {
+	buf := new(bytes.Buffer)
+	dyer := newTextDyer(buf, record.Level, record.Mark, coloring)
+
+	formatTime(dyer, record.Time)
+	formatLevel(dyer, record.Level)
+	formatPkg(dyer, record.Pkg)
+	formatFunc(dyer, record.Func)
+	formatFile(dyer, record.File)
+	formatLine(dyer, record.Line)
+	formatMsg(dyer, record.Msg)
+	formatContexts(dyer, record.Contexts)
+
+	buf.WriteByte('\n')
+	return buf.Bytes()
+}
+
+func formatTime(dyer *textDyer, tm time.Time) {
+	dyer.DyeNormal(tm.Format(timeLayout))
+}
+
+func formatLevel(dyer *textDyer, level iface.Level) {
+	if !iface.LegalLogLevel(level) {
+		panic(fmt.Sprintf("glog: illegal log level: %d", level))
+	}
+	dyer.Write(separator)
+	dyer.DyeLevel(levelDesc[level])
+}
+
+func formatPkg(dyer *textDyer, pkg string) {
+	dyer.Write(separator)
+	dyer.DyeNormal(pkg)
+}
+
+func formatFunc(dyer *textDyer, fn string) {
+	if len(fn) > 0 {
+		dyer.Write(separator)
+		dyer.DyeNormal(fn)
+	}
+}
+
+func formatFile(dyer *textDyer, file string) {
+	if len(file) > 0 {
+		dyer.Write(separator)
+		dyer.DyeNormal(file)
+	}
+}
+
+func formatLine(dyer *textDyer, line int) {
+	if line != 0 {
+		dyer.Write(separator)
+		dyer.DyeNormal(strconv.Itoa(line))
+	}
+}
+
+func formatMsg(dyer *textDyer, msg string) {
+	dyer.Write(separator)
+	dyer.DyeSymbol("<")
+	dyer.DyeNormal(msg)
+	dyer.DyeSymbol(">")
+}
+
+func formatContexts(dyer *textDyer, contexts []binary.Context) {
+	for _, context := range contexts {
+		kind := context.Kind
+		if !kind.Legal() {
+			panic(fmt.Sprintf("glog: illegal value kind %d", kind))
+		}
+
+		format := context.Format
+		if len(format) == 0 {
+			format = defaultFormats[kind]
+		}
+
+		var value string
+		if kind == binary.Time {
+			tm := context.Value.(time.Time)
+			value = tm.Format(format)
+		} else {
+			value = fmt.Sprintf(format, context.Value)
+		}
+
+		dyer.Write(separator)
+		dyer.DyeSymbol("(")
+		dyer.DyeKey(context.Key)
+		dyer.DyeSymbol(":")
+		dyer.Write(separator)
+		dyer.DyeNormal(value)
+		dyer.DyeSymbol(")")
+	}
+}
