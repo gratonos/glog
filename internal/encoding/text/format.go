@@ -64,7 +64,7 @@ func FormatRecord(record *binary.Record, coloring bool) []byte {
 }
 
 func formatTime(dyer *textDyer, tm time.Time) {
-	dyer.DyeNormal(tm.Format(timeLayout))
+	dyer.DyeContent(tm.Format(timeLayout))
 }
 
 func formatLevel(dyer *textDyer, level iface.Level) {
@@ -77,63 +77,71 @@ func formatLevel(dyer *textDyer, level iface.Level) {
 
 func formatPkg(dyer *textDyer, pkg string) {
 	dyer.Write(separator)
-	dyer.DyeNormal(pkg)
+	dyer.DyeContent(pkg)
 }
 
 func formatFunc(dyer *textDyer, fn string) {
-	if len(fn) > 0 {
+	if fn != "" {
 		dyer.Write(separator)
-		dyer.DyeNormal(fn)
+		dyer.DyeContent(fn)
 	}
 }
 
 func formatFile(dyer *textDyer, file string) {
-	if len(file) > 0 {
+	if file != "" {
 		dyer.Write(separator)
-		dyer.DyeNormal(file)
+		dyer.DyeContent(file)
 	}
 }
 
 func formatLine(dyer *textDyer, line int) {
 	if line != 0 {
 		dyer.Write(separator)
-		dyer.DyeNormal(strconv.Itoa(line))
+		dyer.DyeContent(strconv.Itoa(line))
 	}
 }
 
 func formatMsg(dyer *textDyer, msg string) {
 	dyer.Write(separator)
 	dyer.DyeSymbol("<")
-	dyer.DyeNormal(msg)
+	dyer.DyeContent(msg)
 	dyer.DyeSymbol(">")
 }
 
 func formatContexts(dyer *textDyer, contexts []binary.Context) {
 	for _, context := range contexts {
-		kind := context.Kind
-		if !kind.Legal() {
-			panic(fmt.Sprintf("glog: illegal value kind %d", kind))
-		}
-
-		format := context.Format
-		if len(format) == 0 {
-			format = defaultFormats[kind]
-		}
-
-		var value string
-		if kind == binary.Time {
-			tm := context.Value.(time.Time)
-			value = tm.Format(format)
-		} else {
-			value = fmt.Sprintf(format, context.Value)
-		}
-
-		dyer.Write(separator)
-		dyer.DyeSymbol("(")
-		dyer.DyeKey(context.Key)
-		dyer.DyeSymbol(":")
-		dyer.Write(separator)
-		dyer.DyeNormal(value)
-		dyer.DyeSymbol(")")
+		formatContext(dyer, context.Key, formatValue(&context))
 	}
+}
+
+func formatContext(dyer *textDyer, key, value string) {
+	dyer.Write(separator)
+	dyer.DyeSymbol("(")
+	dyer.DyeKey(key)
+	dyer.DyeSymbol(":")
+	dyer.Write(separator)
+	dyer.DyeContent(value)
+	dyer.DyeSymbol(")")
+}
+
+func formatValue(context *binary.Context) string {
+	kind := context.Kind
+	if !kind.Legal() {
+		panic(fmt.Sprintf("glog: illegal value kind %d", kind))
+	}
+
+	format := context.Format
+	if format == "" {
+		format = defaultFormats[kind]
+	}
+
+	var value string
+	if kind == binary.Time {
+		tm := context.Value.(time.Time)
+		value = tm.Format(format)
+	} else {
+		value = fmt.Sprintf(format, context.Value)
+	}
+
+	return value
 }

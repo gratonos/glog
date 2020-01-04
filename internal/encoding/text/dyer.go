@@ -41,56 +41,48 @@ func newTextDyer(buf *bytes.Buffer, level iface.Level, mark bool, coloring bool)
 	}
 }
 
-func (this *textDyer) DyeNormal(str string) {
-	var begin, end string
+func (this *textDyer) DyeContent(str string) {
 	if this.coloring {
 		if this.mark {
-			begin = magenta
+			this.dye(str, magenta)
 		} else {
-			begin = levelColors[this.level]
+			this.dye(str, levelColors[this.level])
 		}
-		end = reset
+	} else {
+		this.Write(str)
 	}
-
-	this.dye(begin, str, end)
 }
 
 func (this *textDyer) DyeLevel(level string) {
-	var begin, end string
 	if this.coloring {
-		begin = levelColors[this.level]
-		end = reset
+		this.dye(level, levelColors[this.level])
+	} else {
+		this.Write(level)
 	}
-
-	this.dye(begin, level, end)
 }
 
 func (this *textDyer) DyeSymbol(symbol string) {
-	var begin, end string
 	if this.coloring {
-		begin = cyan
-		end = reset
+		this.dye(symbol, cyan)
+	} else {
+		this.Write(symbol)
 	}
-
-	this.dye(begin, symbol, end)
 }
 
 func (this *textDyer) DyeKey(key string) {
-	var begin, end string
 	if this.coloring {
-		begin = blue
-		end = reset
+		this.dye(key, blue)
+	} else {
+		this.Write(key)
 	}
-
-	this.dye(begin, key, end)
 }
 
 func (this *textDyer) Write(str string) {
 	this.buf.WriteString(str)
 }
 
-func (this *textDyer) dye(begin, str, end string) {
-	this.buf.WriteString(begin)
+func (this *textDyer) dye(str, color string) {
+	this.buf.WriteString(color)
 	this.buf.WriteString(str)
-	this.buf.WriteString(end)
+	this.buf.WriteString(reset)
 }
