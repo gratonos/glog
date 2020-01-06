@@ -35,15 +35,9 @@ var logPool = sync.Pool{
 }
 
 func genLog(logger *ilogger.Logger, info *preInfo) *Log {
-	log := getLog(logger)
-	log.appendPreInfo(info)
-	return log
-}
-
-func getLog(logger *ilogger.Logger) *Log {
 	log := logPool.Get().(*Log)
-	log.logger = logger
-	log.buf = binary.ResetBuf(log.buf)
+	log.reset(logger)
+	log.appendPreInfo(info)
 	return log
 }
 
@@ -208,6 +202,11 @@ func (this *Log) Commit(msg string) {
 		this.buf = binary.AppendMsg(this.buf, msg)
 		this.logger.Commit(this.emit, this.put)
 	}
+}
+
+func (this *Log) reset(logger *ilogger.Logger) {
+	this.logger = logger
+	this.buf = binary.ResetBuf(this.buf)
 }
 
 func (this *Log) appendPreInfo(info *preInfo) {
