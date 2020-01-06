@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/gratonos/glog/internal/writers/console"
@@ -10,8 +11,11 @@ import (
 
 type Logger struct {
 	consoleWriter *console.Writer
-	config        iface.Config
-	level         atomicLevel
+
+	config iface.Config
+	level  atomicLevel
+
+	lock sync.Mutex
 }
 
 func New() *Logger {
@@ -30,30 +34,33 @@ func (this *Logger) Level() iface.Level {
 }
 
 func (this *Logger) Config() iface.Config {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+
 	return this.config
 }
 
 func (this *Logger) SetConfig(config iface.Config) error {
-	level := config.Level
-	if !iface.LegalLoggerLevel(level) {
-		return fmt.Errorf("glog: illegal logger level: %d", level)
-	}
+	this.lock.Lock()
+	defer this.lock.Unlock()
 
-	this.consoleWriter.SetConfig(config.ConsoleConfig)
-	this.level.Set(level)
-	this.config = config
-
-	return nil
+	return this.setConfig(config)
 }
 
 func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
 	if updater == nil {
 		panic("glog: updater is nil")
 	}
-	return this.SetConfig(updater(this.config))
+
+	this.lock.Lock()
+	defer this.lock.Unlock()
+
+	return this.setConfig(updater(this.config))
 }
 
 func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
+	this.lock.Lock()
+
 	tm := time.Now()
 	log := emit(tm)
 
@@ -61,5 +68,20 @@ func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 		this.consoleWriter.Write(log)
 	}
 
+	this.lock.Unlock()
+
 	done()
+}
+
+func (this *Logger) setConfig(config iface.Config) error {
+	level := config.Level
+	if !iface.LegalLoggerLevel(level) {
+		return fmt.Errorf("glog: illegal logger level: %d", level)
+	}
+
+	this.consoleWriter.SetConfig(config.ConsoleConfig)
+	this.config = config
+	this.level.Set(level)
+
+	return nil
 }
