@@ -7,7 +7,8 @@ type Config struct {
 }
 
 type ConsoleConfig struct {
-	Coloring bool
+	ErrorHandler string
+	Coloring     bool
 }
 
 func DefaultConfig() Config {

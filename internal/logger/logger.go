@@ -49,7 +49,7 @@ func (this *Logger) SetConfig(config iface.Config) error {
 
 func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
 	if updater == nil {
-		panic("glog: updater is nil")
+		panic("glog: update config: updater is nil")
 	}
 
 	this.lock.Lock()
@@ -65,7 +65,7 @@ func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 	log := emit(tm)
 
 	if this.config.ConsoleWriter {
-		this.consoleWriter.Write(log)
+		this.consoleWriter.Write(log, tm)
 	}
 
 	this.lock.Unlock()
@@ -76,10 +76,13 @@ func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 func (this *Logger) setConfig(config iface.Config) error {
 	level := config.Level
 	if !iface.LegalLoggerLevel(level) {
-		return fmt.Errorf("glog: illegal logger level: %d", level)
+		return fmt.Errorf("glog: set config: illegal logger level: %d", level)
 	}
 
-	this.consoleWriter.SetConfig(config.ConsoleConfig)
+	if err := this.consoleWriter.SetConfig(config.ConsoleConfig); err != nil {
+		return fmt.Errorf("glog: set config: invalid config for console writer: %v", err)
+	}
+
 	this.config = config
 	this.level.Set(level)
 
