@@ -13,6 +13,7 @@ import (
 const (
 	timeLayout = "2006-01-02 15:04:05.000000"
 	separator  = " "
+	logMark    = "@@@@@@@@"
 )
 
 var levelDesc = [...]string{
@@ -48,10 +49,11 @@ var defaultFormats = [...]string{
 
 func FormatRecord(record *binary.Record, coloring bool) []byte {
 	buf := new(bytes.Buffer)
-	dyer := newTextDyer(buf, record.Level, record.Mark, coloring)
+	dyer := newTextDyer(buf, record.Level, coloring)
 
 	formatTime(dyer, record.Time)
 	formatLevel(dyer, record.Level)
+	formatMark(dyer, record.Mark)
 	formatPkg(dyer, record.Pkg)
 	formatFunc(dyer, record.Func)
 	formatFile(dyer, record.File)
@@ -72,7 +74,14 @@ func formatLevel(dyer *textDyer, level iface.Level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
 	dyer.Write(separator)
-	dyer.DyeLevel(levelDesc[level])
+	dyer.DyeContent(levelDesc[level])
+}
+
+func formatMark(dyer *textDyer, mark bool) {
+	if mark {
+		dyer.Write(separator)
+		dyer.DyeSymbol(logMark)
+	}
 }
 
 func formatPkg(dyer *textDyer, pkg string) {
