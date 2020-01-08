@@ -15,11 +15,11 @@ var (
 )
 
 func Logger(name string) *logger.Logger {
-	return logger.NewLogger(internalLogger(name), callerPkg())
+	return logger.NewLogger(internalLogger(name), callerPkg(0+1))
 }
 
 func SugaredLogger(name string) *logger.SugaredLogger {
-	return logger.NewSugaredLogger(internalLogger(name), callerPkg())
+	return logger.NewSugaredLogger(internalLogger(name), callerPkg(0+1))
 }
 
 func internalLogger(name string) *ilogger.Logger {
@@ -35,9 +35,8 @@ func internalLogger(name string) *ilogger.Logger {
 	return logger
 }
 
-func callerPkg() string {
-	const stackOffset = 2
-	pc, _, _, ok := runtime.Caller(stackOffset)
+func callerPkg(frameSkip int) string {
+	pc, _, _, ok := runtime.Caller(frameSkip + 1)
 	if ok {
 		return pkgName(pc)
 	} else {
