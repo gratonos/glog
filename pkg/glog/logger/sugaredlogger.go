@@ -19,66 +19,68 @@ func NewSugaredLogger(logger *ilogger.Logger, pkg string) *SugaredLogger {
 	}
 }
 
-func (this *SugaredLogger) Log(level iface.Level, args ...interface{}) {
+func (this *SugaredLogger) Log(level iface.Level, frameSkip int, args ...interface{}) {
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	this.log(level, args...)
+	this.log(level, frameSkip+1, args...)
 }
 
-func (this *SugaredLogger) Logf(level iface.Level, fmtstr string, args ...interface{}) {
+func (this *SugaredLogger) Logf(level iface.Level, frameSkip int,
+	fmtstr string, args ...interface{}) {
+
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	this.logf(level, fmtstr, args...)
+	this.logf(level, frameSkip+1, fmtstr, args...)
 }
 
 func (this *SugaredLogger) Trace(args ...interface{}) {
-	this.log(iface.Trace, args...)
+	this.log(iface.Trace, 0+1, args...)
 }
 
 func (this *SugaredLogger) Tracef(fmtstr string, args ...interface{}) {
-	this.logf(iface.Trace, fmtstr, args...)
+	this.logf(iface.Trace, 0+1, fmtstr, args...)
 }
 
 func (this *SugaredLogger) Debug(args ...interface{}) {
-	this.log(iface.Debug, args...)
+	this.log(iface.Debug, 0+1, args...)
 }
 
 func (this *SugaredLogger) Debugf(fmtstr string, args ...interface{}) {
-	this.logf(iface.Debug, fmtstr, args...)
+	this.logf(iface.Debug, 0+1, fmtstr, args...)
 }
 
 func (this *SugaredLogger) Info(args ...interface{}) {
-	this.log(iface.Info, args...)
+	this.log(iface.Info, 0+1, args...)
 }
 
 func (this *SugaredLogger) Infof(fmtstr string, args ...interface{}) {
-	this.logf(iface.Info, fmtstr, args...)
+	this.logf(iface.Info, 0+1, fmtstr, args...)
 }
 
 func (this *SugaredLogger) Warn(args ...interface{}) {
-	this.log(iface.Warn, args...)
+	this.log(iface.Warn, 0+1, args...)
 }
 
 func (this *SugaredLogger) Warnf(fmtstr string, args ...interface{}) {
-	this.logf(iface.Warn, fmtstr, args...)
+	this.logf(iface.Warn, 0+1, fmtstr, args...)
 }
 
 func (this *SugaredLogger) Error(args ...interface{}) {
-	this.log(iface.Error, args...)
+	this.log(iface.Error, 0+1, args...)
 }
 
 func (this *SugaredLogger) Errorf(fmtstr string, args ...interface{}) {
-	this.logf(iface.Error, fmtstr, args...)
+	this.logf(iface.Error, 0+1, fmtstr, args...)
 }
 
 func (this *SugaredLogger) Fatal(args ...interface{}) {
-	this.log(iface.Fatal, args...)
+	this.log(iface.Fatal, 0+1, args...)
 }
 
 func (this *SugaredLogger) Fatalf(fmtstr string, args ...interface{}) {
-	this.logf(iface.Fatal, fmtstr, args...)
+	this.logf(iface.Fatal, 0+1, fmtstr, args...)
 }
 
 func (this *SugaredLogger) Config() iface.Config {
@@ -93,28 +95,18 @@ func (this *SugaredLogger) UpdateConfig(updater func(config iface.Config) iface.
 	return this.logger.UpdateConfig(updater)
 }
 
-func (this *SugaredLogger) log(level iface.Level, args ...interface{}) {
-	log := this.genLog(level)
+func (this *SugaredLogger) log(level iface.Level, frameSkip int, args ...interface{}) {
+	log := genLog(this.logger, level, this.pkg, frameSkip+1)
 	if log != nil {
 		log.Commit(fmt.Sprint(args...))
 	}
 }
 
-func (this *SugaredLogger) logf(level iface.Level, fmtstr string, args ...interface{}) {
-	log := this.genLog(level)
+func (this *SugaredLogger) logf(level iface.Level, frameSkip int,
+	fmtstr string, args ...interface{}) {
+
+	log := genLog(this.logger, level, this.pkg, frameSkip+1)
 	if log != nil {
 		log.Commit(fmt.Sprintf(fmtstr, args...))
 	}
-}
-
-func (this *SugaredLogger) genLog(level iface.Level) *Log {
-	if this.logger.Level() > level {
-		return nil
-	}
-
-	info := &preInfo{
-		Pkg:   this.pkg,
-		Level: level,
-	}
-	return genLog(this.logger, info)
 }

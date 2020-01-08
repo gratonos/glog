@@ -13,7 +13,8 @@ type Logger struct {
 	consoleWriter *console.Writer
 
 	config iface.Config
-	level  atomicLevel
+	level  *atomicLevel
+	srcPos *atomicBool
 
 	lock sync.Mutex
 }
@@ -22,15 +23,18 @@ func New() *Logger {
 	config := iface.DefaultConfig()
 	return &Logger{
 		consoleWriter: console.New(config.ConsoleConfig),
-		level: atomicLevel{
-			level: config.Level,
-		},
-		config: config,
+		level:         newAtomicLevel(config.Level),
+		srcPos:        newAtomicBool(config.SrcPos),
+		config:        config,
 	}
 }
 
 func (this *Logger) Level() iface.Level {
 	return this.level.Get()
+}
+
+func (this *Logger) SrcPos() bool {
+	return this.srcPos.Get()
 }
 
 func (this *Logger) Config() iface.Config {
@@ -85,6 +89,7 @@ func (this *Logger) setConfig(config iface.Config) error {
 
 	this.config = config
 	this.level.Set(level)
+	this.srcPos.Set(config.SrcPos)
 
 	return nil
 }

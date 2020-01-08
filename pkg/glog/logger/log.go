@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 
@@ -8,14 +10,6 @@ import (
 	ilogger "github.com/gratonos/glog/internal/logger"
 	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
-
-type preInfo struct {
-	Pkg   string
-	Func  string
-	File  string
-	Line  int
-	Level iface.Level
-}
 
 type Log struct {
 	logger *ilogger.Logger
@@ -34,10 +28,14 @@ var logPool = sync.Pool{
 	},
 }
 
-func genLog(logger *ilogger.Logger, info *preInfo) *Log {
+func genLog(logger *ilogger.Logger, level iface.Level, pkg string, frameSkip int) *Log {
+	if logger.Level() > level {
+		return nil
+	}
+
 	log := logPool.Get().(*Log)
 	log.reset(logger)
-	log.appendPreInfo(info)
+	log.appendPreInfo(level, pkg, frameSkip+1)
 	return log
 }
 
@@ -209,17 +207,13 @@ func (this *Log) reset(logger *ilogger.Logger) {
 	this.buf = binary.ResetBuf(this.buf)
 }
 
-func (this *Log) appendPreInfo(info *preInfo) {
-	this.buf = binary.AppendLevel(this.buf, info.Level)
-	this.buf = binary.AppendPkg(this.buf, info.Pkg)
-	if len(info.Func) != 0 {
-		this.buf = binary.AppendFunc(this.buf, info.Func)
-	}
-	if len(info.File) != 0 {
-		this.buf = binary.AppendFile(this.buf, info.File)
-	}
-	if info.Line != 0 {
-		this.buf = binary.AppendLine(this.buf, info.Line)
+func (this *Log) appendPreInfo(level iface.Level, pkg string, frameSkip int) {
+	this.buf = binary.AppendLevel(this.buf, level)
+	this.buf = binary.AppendPkg(this.buf, pkg)
+	if this.logger.SrcPos() {
+		file, line := fileAndLine(frameSkip + 1)
+		this.buf = binary.AppendFile(this.buf, file)
+		this.buf = binary.AppendLine(this.buf, line)
 	}
 }
 
@@ -231,4 +225,13 @@ func (this *Log) emit(tm time.Time) []byte {
 
 func (this *Log) put() {
 	logPool.Put(this)
+}
+
+func fileAndLine(frameSkip int) (string, int) {
+	_, file, line, ok := runtime.Caller(frameSkip + 1)
+	if ok {
+		return filepath.Base(file), line
+	} else {
+		return "???", 0
+	}
 }

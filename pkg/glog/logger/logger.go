@@ -19,35 +19,35 @@ func NewLogger(logger *ilogger.Logger, pkg string) *Logger {
 	}
 }
 
-func (this *Logger) Log(level iface.Level) *Log {
+func (this *Logger) Log(level iface.Level, frameSkip int) *Log {
 	if !iface.LegalLogLevel(level) {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
-	return this.genLog(level)
+	return genLog(this.logger, level, this.pkg, frameSkip+1)
 }
 
 func (this *Logger) Trace() *Log {
-	return this.genLog(iface.Trace)
+	return genLog(this.logger, iface.Trace, this.pkg, 0+1)
 }
 
 func (this *Logger) Debug() *Log {
-	return this.genLog(iface.Debug)
+	return genLog(this.logger, iface.Debug, this.pkg, 0+1)
 }
 
 func (this *Logger) Info() *Log {
-	return this.genLog(iface.Info)
+	return genLog(this.logger, iface.Info, this.pkg, 0+1)
 }
 
 func (this *Logger) Warn() *Log {
-	return this.genLog(iface.Warn)
+	return genLog(this.logger, iface.Warn, this.pkg, 0+1)
 }
 
 func (this *Logger) Error() *Log {
-	return this.genLog(iface.Error)
+	return genLog(this.logger, iface.Error, this.pkg, 0+1)
 }
 
 func (this *Logger) Fatal() *Log {
-	return this.genLog(iface.Fatal)
+	return genLog(this.logger, iface.Fatal, this.pkg, 0+1)
 }
 
 func (this *Logger) Config() iface.Config {
@@ -60,16 +60,4 @@ func (this *Logger) SetConfig(config iface.Config) error {
 
 func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
 	return this.logger.UpdateConfig(updater)
-}
-
-func (this *Logger) genLog(level iface.Level) *Log {
-	if this.logger.Level() > level {
-		return nil
-	}
-
-	info := &preInfo{
-		Pkg:   this.pkg,
-		Level: level,
-	}
-	return genLog(this.logger, info)
 }
