@@ -55,7 +55,6 @@ func FormatRecord(record *binary.Record, coloring bool) []byte {
 	formatLevel(dyer, record.Level)
 	formatMark(dyer, record.Mark)
 	formatPkg(dyer, record.Pkg)
-	formatFunc(dyer, record.Func)
 	formatFile(dyer, record.File)
 	formatLine(dyer, record.Line)
 	formatMsg(dyer, record.Msg)
@@ -89,13 +88,6 @@ func formatPkg(dyer *textDyer, pkg string) {
 	dyer.DyeContent(pkg)
 }
 
-func formatFunc(dyer *textDyer, fn string) {
-	if fn != "" {
-		dyer.Write(separator)
-		dyer.DyeContent(fn)
-	}
-}
-
 func formatFile(dyer *textDyer, file string) {
 	if file != "" {
 		dyer.Write(separator)
@@ -105,7 +97,7 @@ func formatFile(dyer *textDyer, file string) {
 
 func formatLine(dyer *textDyer, line int) {
 	if line != 0 {
-		dyer.Write(separator)
+		dyer.DyeSymbol(":")
 		dyer.DyeContent(strconv.Itoa(line))
 	}
 }

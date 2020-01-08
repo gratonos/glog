@@ -15,7 +15,6 @@ const (
 	fieldTimestamp fieldKind = iota
 	fieldLevel
 	fieldPkg
-	fieldFunc
 	fieldFile
 	fieldLine
 	fieldMark
@@ -44,7 +43,6 @@ var fieldReaders = [...]func(*Record, *bufio.Reader) error{
 	fieldTimestamp: readTimestamp,
 	fieldLevel:     readLevel,
 	fieldPkg:       readPkg,
-	fieldFunc:      readFunc,
 	fieldFile:      readFile,
 	fieldLine:      readLine,
 	fieldMark:      readMark,
@@ -77,12 +75,6 @@ func AppendLevel(dst []byte, level iface.Level) []byte {
 func AppendPkg(dst []byte, pkg string) []byte {
 	dst = appendFieldKind(dst, fieldPkg)
 	dst = appendShortString(dst, pkg)
-	return dst
-}
-
-func AppendFunc(dst []byte, fn string) []byte {
-	dst = appendFieldKind(dst, fieldFunc)
-	dst = appendShortString(dst, fn)
 	return dst
 }
 
@@ -177,14 +169,6 @@ func readPkg(record *Record, reader *bufio.Reader) error {
 	pkg, err := readShortString(reader)
 	if err == nil {
 		record.Pkg = pkg
-	}
-	return err
-}
-
-func readFunc(record *Record, reader *bufio.Reader) error {
-	fn, err := readShortString(reader)
-	if err == nil {
-		record.Func = fn
 	}
 	return err
 }

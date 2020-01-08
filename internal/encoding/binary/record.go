@@ -12,7 +12,6 @@ import (
 type Record struct {
 	Time     time.Time
 	Pkg      string
-	Func     string
 	File     string
 	Line     int
 	Msg      string
