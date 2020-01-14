@@ -1,7 +1,7 @@
 package glog
 
 import (
-	"github.com/gratonos/glog/pkg/glog/logger/iface"
+	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 func MustRegisterErrorHandler(name string, handler iface.ErrorHandler) {

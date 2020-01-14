@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	ilogger "github.com/gratonos/glog/internal/logger"
-	"github.com/gratonos/glog/pkg/glog/logger/iface"
+	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type Logger struct {

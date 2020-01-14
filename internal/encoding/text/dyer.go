@@ -3,7 +3,7 @@ package text
 import (
 	"bytes"
 
-	"github.com/gratonos/glog/pkg/glog/logger/iface"
+	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 const (

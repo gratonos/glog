@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/gratonos/glog/pkg/glog/logger/iface"
+	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type fieldKind uint8

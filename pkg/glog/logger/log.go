@@ -8,7 +8,7 @@ import (
 
 	"github.com/gratonos/glog/internal/encoding/binary"
 	ilogger "github.com/gratonos/glog/internal/logger"
-	"github.com/gratonos/glog/pkg/glog/logger/iface"
+	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type Log struct {

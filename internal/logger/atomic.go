@@ -3,7 +3,7 @@ package logger
 import (
 	"sync/atomic"
 
-	"github.com/gratonos/glog/pkg/glog/logger/iface"
+	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type atomicLevel struct {

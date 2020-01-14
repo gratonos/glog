@@ -8,7 +8,7 @@ import (
 
 	"github.com/gratonos/glog/internal/encoding/binary"
 	"github.com/gratonos/glog/internal/encoding/text"
-	"github.com/gratonos/glog/pkg/glog/logger/iface"
+	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type Writer struct {
