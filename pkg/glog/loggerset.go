@@ -5,12 +5,12 @@ import (
 	"strings"
 	"sync"
 
-	ilogger "github.com/gratonos/glog/internal/logger"
+	ilog "github.com/gratonos/glog/internal/logger"
 	"github.com/gratonos/glog/pkg/glog/logger"
 )
 
 var (
-	loggers = map[string]*ilogger.Logger{}
+	loggers = map[string]*ilog.Logger{}
 	lock    sync.Mutex
 )
 
@@ -18,17 +18,13 @@ func Logger(name string) *logger.Logger {
 	return logger.NewLogger(internalLogger(name), callerPkg(0+1))
 }
 
-func SugaredLogger(name string) *logger.SugaredLogger {
-	return logger.NewSugaredLogger(internalLogger(name), callerPkg(0+1))
-}
-
-func internalLogger(name string) *ilogger.Logger {
+func internalLogger(name string) *ilog.Logger {
 	lock.Lock()
 	defer lock.Unlock()
 
 	logger := loggers[name]
 	if logger == nil {
-		logger = ilogger.New()
+		logger = ilog.New()
 		loggers[name] = logger
 	}
 
