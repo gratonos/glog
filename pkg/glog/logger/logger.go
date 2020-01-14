@@ -50,14 +50,14 @@ func (this *Logger) Fatal() *Log {
 	return genLog(this.logger, iface.Fatal, this.pkg, 0+1)
 }
 
-func (this *Logger) Config() iface.Config {
+func (this *Logger) Config() iface.Logger {
 	return this.logger.Config()
 }
 
-func (this *Logger) SetConfig(config iface.Config) error {
+func (this *Logger) SetConfig(config iface.Logger) error {
 	return this.logger.SetConfig(config)
 }
 
-func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
+func (this *Logger) UpdateConfig(updater func(config iface.Logger) iface.Logger) error {
 	return this.logger.UpdateConfig(updater)
 }

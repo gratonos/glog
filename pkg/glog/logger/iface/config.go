@@ -1,24 +1,13 @@
 package iface
 
-type Config struct {
+type Logger struct {
 	Level         Level
-	SrcPos        bool
-	ConsoleWriter bool
-	ConsoleConfig ConsoleConfig
+	FileLine      bool
+	ConsoleWriter ConsoleWriter
 }
 
-type ConsoleConfig struct {
-	ErrorHandler string
+type ConsoleWriter struct {
+	Enable       bool
 	Coloring     bool
-}
-
-func DefaultConfig() Config {
-	return Config{
-		Level:         Trace,
-		SrcPos:        true,
-		ConsoleWriter: true,
-		ConsoleConfig: ConsoleConfig{
-			Coloring: true,
-		},
-	}
+	ErrorHandler ErrorHandler
 }

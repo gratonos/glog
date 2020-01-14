@@ -210,7 +210,7 @@ func (this *Log) reset(logger *ilogger.Logger) {
 func (this *Log) appendPreInfo(level iface.Level, pkg string, frameSkip int) {
 	this.buf = binary.AppendLevel(this.buf, level)
 	this.buf = binary.AppendPkg(this.buf, pkg)
-	if this.logger.SrcPos() {
+	if this.logger.FileLine() {
 		file, line := fileAndLine(frameSkip + 1)
 		this.buf = binary.AppendFile(this.buf, file)
 		this.buf = binary.AppendLine(this.buf, line)

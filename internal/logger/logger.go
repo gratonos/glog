@@ -12,20 +12,33 @@ import (
 type Logger struct {
 	consoleWriter *console.Writer
 
-	config iface.Config
-	level  *atomicLevel
-	srcPos *atomicBool
+	config   iface.Logger
+	level    *atomicLevel
+	fileLine *atomicBool
 
 	lock sync.Mutex
 }
 
 func New() *Logger {
-	config := iface.DefaultConfig()
+	config := iface.Logger{
+		Level:    iface.Trace,
+		FileLine: true,
+		ConsoleWriter: iface.ConsoleWriter{
+			Coloring: true,
+			Enable:   true,
+		},
+	}
+
+	consoleWriter := &console.Writer{}
+	if err := consoleWriter.SetConfig(config.ConsoleWriter); err != nil {
+		panic(fmt.Sprintf("glog: invalid default config for console writer: %v", err))
+	}
+
 	return &Logger{
-		consoleWriter: console.New(config.ConsoleConfig),
-		level:         newAtomicLevel(config.Level),
-		srcPos:        newAtomicBool(config.SrcPos),
+		consoleWriter: consoleWriter,
 		config:        config,
+		level:         newAtomicLevel(config.Level),
+		fileLine:      newAtomicBool(config.FileLine),
 	}
 }
 
@@ -33,25 +46,25 @@ func (this *Logger) Level() iface.Level {
 	return this.level.Get()
 }
 
-func (this *Logger) SrcPos() bool {
-	return this.srcPos.Get()
+func (this *Logger) FileLine() bool {
+	return this.fileLine.Get()
 }
 
-func (this *Logger) Config() iface.Config {
+func (this *Logger) Config() iface.Logger {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
 	return this.config
 }
 
-func (this *Logger) SetConfig(config iface.Config) error {
+func (this *Logger) SetConfig(config iface.Logger) error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
 	return this.setConfig(config)
 }
 
-func (this *Logger) UpdateConfig(updater func(config iface.Config) iface.Config) error {
+func (this *Logger) UpdateConfig(updater func(config iface.Logger) iface.Logger) error {
 	if updater == nil {
 		panic("glog: update config: updater is nil")
 	}
@@ -68,7 +81,7 @@ func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 	tm := time.Now()
 	log := emit(tm)
 
-	if this.config.ConsoleWriter {
+	if this.config.ConsoleWriter.Enable {
 		this.consoleWriter.Write(log, tm)
 	}
 
@@ -77,19 +90,19 @@ func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 	done()
 }
 
-func (this *Logger) setConfig(config iface.Config) error {
+func (this *Logger) setConfig(config iface.Logger) error {
 	level := config.Level
 	if !iface.LegalLoggerLevel(level) {
 		return fmt.Errorf("glog: set config: illegal logger level: %d", level)
 	}
 
-	if err := this.consoleWriter.SetConfig(config.ConsoleConfig); err != nil {
+	if err := this.consoleWriter.SetConfig(config.ConsoleWriter); err != nil {
 		return fmt.Errorf("glog: set config: invalid config for console writer: %v", err)
 	}
 
 	this.config = config
 	this.level.Set(level)
-	this.srcPos.Set(config.SrcPos)
+	this.fileLine.Set(config.FileLine)
 
 	return nil
 }

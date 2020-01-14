@@ -8,20 +8,15 @@ import (
 
 	"github.com/gratonos/glog/internal/encoding/binary"
 	"github.com/gratonos/glog/internal/encoding/text"
-	"github.com/gratonos/glog/internal/writers"
 	"github.com/gratonos/glog/pkg/glog/logger/iface"
 )
 
 type Writer struct {
-	errorHandler writers.ErrorHandler
-	config       iface.ConsoleConfig
+	config iface.ConsoleWriter
 }
 
-func New(config iface.ConsoleConfig) *Writer {
+func New(config iface.ConsoleWriter) *Writer {
 	writer := &Writer{}
-	if err := writer.SetConfig(config); err != nil {
-		panic(fmt.Sprintf("glog: invalid default config for console writer: %v", err))
-	}
 	return writer
 }
 
@@ -32,18 +27,12 @@ func (this *Writer) Write(log []byte, tm time.Time) {
 	}
 
 	_, err := os.Stderr.Write(text.FormatRecord(&record, this.config.Coloring))
-	if err != nil && this.errorHandler != nil {
-		this.errorHandler(tm, err)
+	if err != nil && this.config.ErrorHandler != nil {
+		this.config.ErrorHandler(tm, err)
 	}
 }
 
-func (this *Writer) SetConfig(config iface.ConsoleConfig) error {
-	errorHandler, err := writers.GetErrorHandler(config.ErrorHandler)
-	if err != nil {
-		return err
-	}
-	this.errorHandler = errorHandler
-
+func (this *Writer) SetConfig(config iface.ConsoleWriter) error {
 	this.config = config
 	return nil
 }
