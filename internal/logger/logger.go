@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"github.com/gratonos/glog/internal/writers/console"
+	"github.com/gratonos/glog/internal/writers/file"
 	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type Logger struct {
 	consoleWriter *console.Writer
+	fileWriter    *file.Writer
 
 	config   iface.Logger
 	level    *atomicLevel
@@ -29,13 +31,14 @@ func New() *Logger {
 		},
 	}
 
-	consoleWriter := &console.Writer{}
+	consoleWriter := new(console.Writer)
 	if err := consoleWriter.SetConfig(config.ConsoleWriter); err != nil {
 		panic(fmt.Sprintf("glog: invalid default config for console writer: %v", err))
 	}
 
 	return &Logger{
 		consoleWriter: consoleWriter,
+		fileWriter:    new(file.Writer),
 		config:        config,
 		level:         newAtomicLevel(config.Level),
 		fileLine:      newAtomicBool(config.FileLine),
@@ -84,6 +87,9 @@ func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 	if this.config.ConsoleWriter.Enable {
 		this.consoleWriter.Write(log, tm)
 	}
+	if this.config.FileWriter.Enable {
+		this.fileWriter.Write(log, tm)
+	}
 
 	this.lock.Unlock()
 
@@ -98,6 +104,10 @@ func (this *Logger) setConfig(config iface.Logger) error {
 
 	if err := this.consoleWriter.SetConfig(config.ConsoleWriter); err != nil {
 		return fmt.Errorf("glog: set config: invalid config for console writer: %v", err)
+	}
+
+	if err := this.fileWriter.SetConfig(config.FileWriter); err != nil {
+		return fmt.Errorf("glog: set config: invalid config for file writer: %v", err)
 	}
 
 	this.config = config
