@@ -9,7 +9,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gratonos/glog/internal/util"
 	"github.com/gratonos/glog/pkg/glog/iface"
+
 	gos "github.com/gratonos/goutil/os"
 )
 
@@ -17,9 +19,13 @@ const (
 	checkInterval = time.Second * 5
 	dateFormat    = "%04d_%02d%02d"
 	timeFormat    = "%02d%02d%02d.%09d"
-	extension     = ".log.bin"
 	dirPerm       = 0770
 )
+
+var extensions = [...]string{
+	iface.Binary: ".log.bin",
+	iface.Text:   ".log.txt",
+}
 
 type Writer struct {
 	config iface.FileWriter
@@ -35,7 +41,7 @@ func (this *Writer) Write(log []byte, tm time.Time) {
 	err := this.checkFile(tm)
 	if err == nil {
 		var n int
-		n, err = this.writer.Write(log)
+		n, err = this.writer.Write(this.convert(log))
 		this.fileSize += int64(n)
 	}
 
@@ -48,15 +54,15 @@ func (this *Writer) SetConfig(config iface.FileWriter) error {
 	if !config.Enable {
 		return this.closeFile()
 	}
-
+	if !config.Format.Legal() {
+		return fmt.Errorf("illegal Format '%d'", config.Format)
+	}
 	if config.MaxFileSize <= 0 {
 		return errors.New("MaxFileSize must be positive")
 	}
-
 	if err := this.checkDir(config.Dir); err != nil {
 		return err
 	}
-
 	this.config = config
 	return nil
 }
@@ -75,6 +81,21 @@ func (this *Writer) checkDir(dir string) error {
 		return err
 	}
 	return nil
+}
+
+func (this *Writer) convert(log []byte) []byte {
+	switch this.config.Format {
+	case iface.Binary:
+		return log
+	case iface.Text:
+		text, err := util.BinaryToText(log, this.config.TextConfig.Coloring)
+		if err != nil {
+			panic(fmt.Sprintf("glog: corrupted log: %v", err))
+		}
+		return text
+	default:
+		panic(fmt.Sprintf("glog: illegal format '%d'", this.config.Format))
+	}
 }
 
 func (this *Writer) checkFile(tm time.Time) error {
@@ -105,7 +126,7 @@ func (this *Writer) createFile(tm time.Time) error {
 		return err
 	}
 
-	filename := clockStr(tm) + extension
+	filename := clockStr(tm) + extensions[this.config.Format]
 	path := filepath.Join(dir, filename)
 
 	file, err := os.Create(path)

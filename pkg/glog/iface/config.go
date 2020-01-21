@@ -15,6 +15,8 @@ type ConsoleWriter struct {
 
 type FileWriter struct {
 	Enable       bool
+	Format       Format
+	TextConfig   TextConfig
 	MaxFileSize  int64
 	Dir          string
 	ErrorHandler ErrorHandler
