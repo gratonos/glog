@@ -21,15 +21,12 @@ type Record struct {
 
 func ReadRecord(record *Record, reader io.Reader) error {
 	if record == nil {
-		panic(readingErrPrefix + ": nil record")
+		panic(readingErrPrefix + ": record is nil")
 	}
 	if reader == nil {
-		panic(readingErrPrefix + ": nil reader")
+		panic(readingErrPrefix + ": reader is nil")
 	}
-	return readRecord(record, reader)
-}
 
-func readRecord(record *Record, reader io.Reader) error {
 	magic, err := readMagic(reader)
 	if err != nil {
 		return err
@@ -38,6 +35,26 @@ func readRecord(record *Record, reader io.Reader) error {
 		return newMagicError(magic)
 	}
 
+	return readRecord(record, reader)
+}
+
+func TryReadRecord(record *Record, reader io.Reader) error {
+	if record == nil {
+		panic(readingErrPrefix + ": record is nil")
+	}
+	if reader == nil {
+		panic(readingErrPrefix + ": reader is nil")
+	}
+
+	_, err := searchMagic(reader)
+	if err != nil {
+		return err
+	}
+
+	return readRecord(record, reader)
+}
+
+func readRecord(record *Record, reader io.Reader) error {
 	version, err := readVersion(reader)
 	if err != nil {
 		return err

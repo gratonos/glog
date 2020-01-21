@@ -110,13 +110,39 @@ func appendFieldKind(dst []byte, kind fieldKind) []byte {
 func readMagic(reader io.Reader) ([]byte, error) {
 	magic := make([]byte, sizeOfMagic)
 	if err := read(magic, reader); err != nil {
-		if ioErr, ok := err.(*IOError); ok && ioErr.Err == io.EOF {
+		if err.(*IOError).Err == io.EOF {
 			return nil, EOF
 		} else {
 			return nil, err
 		}
 	}
 	return magic, nil
+}
+
+func searchMagic(reader io.Reader) (int64, error) {
+	var n int64
+	var match int
+	for {
+		u8, err := readUint8(reader)
+		if err != nil {
+			if n == 0 && err.(*IOError).Err == io.EOF {
+				return 0, EOF
+			} else {
+				return n, err
+			}
+		}
+
+		n++
+
+		if binaryMagic[match] == u8 {
+			match++
+			if match == sizeOfMagic {
+				return n, nil
+			}
+		} else {
+			match = 0
+		}
+	}
 }
 
 func readVersion(reader io.Reader) (uint8, error) {
