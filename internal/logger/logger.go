@@ -98,7 +98,7 @@ func (this *Logger) Commit(emit func(time.Time) []byte, done func()) {
 
 func (this *Logger) setConfig(config iface.Logger) error {
 	level := config.Level
-	if !iface.LegalLoggerLevel(level) {
+	if !level.LegalForLogger() {
 		return fmt.Errorf("glog: set config: illegal logger level: %d", level)
 	}
 

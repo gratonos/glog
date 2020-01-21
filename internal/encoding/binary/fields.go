@@ -157,7 +157,7 @@ func readLevel(record *Record, reader *bufio.Reader) error {
 	}
 
 	level := iface.Level(u)
-	if !iface.LegalLogLevel(level) {
+	if !level.LegalForLog() {
 		return newFormatError(fmt.Sprintf("illegal log level: %d", level))
 	}
 

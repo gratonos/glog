@@ -20,7 +20,7 @@ func NewLogger(logger *ilogger.Logger, pkg string) *Logger {
 }
 
 func (this *Logger) Log(level iface.Level, frameSkip int) *Log {
-	if !iface.LegalLogLevel(level) {
+	if !level.LegalForLog() {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
 	return genLog(this.logger, level, this.pkg, frameSkip+1)

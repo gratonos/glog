@@ -69,7 +69,7 @@ func formatTime(dyer *textDyer, tm time.Time) {
 }
 
 func formatLevel(dyer *textDyer, level iface.Level) {
-	if !iface.LegalLogLevel(level) {
+	if !level.LegalForLog() {
 		panic(fmt.Sprintf("glog: illegal log level: %d", level))
 	}
 	dyer.Write(separator)

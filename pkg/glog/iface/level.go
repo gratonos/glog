@@ -12,10 +12,10 @@ const (
 	Off
 )
 
-func LegalLoggerLevel(level Level) bool {
-	return level >= Trace && level <= Off
+func (self Level) LegalForLog() bool {
+	return self >= Trace && self <= Fatal
 }
 
-func LegalLogLevel(level Level) bool {
-	return level >= Trace && level <= Fatal
+func (self Level) LegalForLogger() bool {
+	return self.LegalForLog() || self == Off
 }
