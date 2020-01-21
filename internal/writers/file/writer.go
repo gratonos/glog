@@ -22,7 +22,7 @@ const (
 	dirPerm       = 0770
 )
 
-var extensions = [...]string{
+var Extensions = [...]string{
 	iface.Binary: ".log.bin",
 	iface.Text:   ".log.txt",
 }
@@ -126,7 +126,7 @@ func (this *Writer) createFile(tm time.Time) error {
 		return err
 	}
 
-	filename := clockStr(tm) + extensions[this.config.Format]
+	filename := clockStr(tm) + Extensions[this.config.Format]
 	path := filepath.Join(dir, filename)
 
 	file, err := os.Create(path)

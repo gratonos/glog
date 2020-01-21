@@ -7,21 +7,22 @@ import (
 )
 
 const (
-	red    = "\033[31m"
-	green  = "\033[32m"
-	yellow = "\033[33m"
-	blue   = "\033[34m"
-	cyan   = "\033[36m"
-	reset  = "\033[0m"
+	Red     = "\033[31m"
+	Green   = "\033[32m"
+	Yellow  = "\033[33m"
+	Blue    = "\033[34m"
+	Magenta = "\033[35m"
+	Cyan    = "\033[36m"
+	Reset   = "\033[0m"
 )
 
 var levelColors = [...]string{
-	iface.Trace: green,
-	iface.Debug: green,
-	iface.Info:  green,
-	iface.Warn:  yellow,
-	iface.Error: red,
-	iface.Fatal: red,
+	iface.Trace: Green,
+	iface.Debug: Green,
+	iface.Info:  Green,
+	iface.Warn:  Yellow,
+	iface.Error: Red,
+	iface.Fatal: Red,
 }
 
 type textDyer struct {
@@ -48,7 +49,7 @@ func (this *textDyer) DyeContent(str string) {
 
 func (this *textDyer) DyeSymbol(symbol string) {
 	if this.coloring {
-		this.dye(symbol, cyan)
+		this.dye(symbol, Cyan)
 	} else {
 		this.Write(symbol)
 	}
@@ -56,7 +57,7 @@ func (this *textDyer) DyeSymbol(symbol string) {
 
 func (this *textDyer) DyeKey(key string) {
 	if this.coloring {
-		this.dye(key, blue)
+		this.dye(key, Blue)
 	} else {
 		this.Write(key)
 	}
@@ -69,5 +70,5 @@ func (this *textDyer) Write(str string) {
 func (this *textDyer) dye(str, color string) {
 	this.buf.WriteString(color)
 	this.buf.WriteString(str)
-	this.buf.WriteString(reset)
+	this.buf.WriteString(Reset)
 }
