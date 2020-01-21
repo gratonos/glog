@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/gratonos/glog/internal/encoding/binary"
-	ilogger "github.com/gratonos/glog/internal/logger"
+	ilog "github.com/gratonos/glog/internal/logger"
 	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type Log struct {
-	logger *ilogger.Logger
+	logger *ilog.Logger
 	buf    []byte
 }
 
@@ -28,7 +28,7 @@ var logPool = sync.Pool{
 	},
 }
 
-func genLog(logger *ilogger.Logger, level iface.Level, pkg string, frameSkip int) *Log {
+func genLog(logger *ilog.Logger, level iface.Level, pkg string, frameSkip int) *Log {
 	if logger.Level() > level {
 		return nil
 	}
@@ -202,7 +202,7 @@ func (this *Log) Commit(msg string) {
 	}
 }
 
-func (this *Log) reset(logger *ilogger.Logger) {
+func (this *Log) reset(logger *ilog.Logger) {
 	this.logger = logger
 	this.buf = binary.ResetBuf(this.buf)
 }

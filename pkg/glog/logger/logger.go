@@ -3,16 +3,16 @@ package logger
 import (
 	"fmt"
 
-	ilogger "github.com/gratonos/glog/internal/logger"
+	ilog "github.com/gratonos/glog/internal/logger"
 	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
 type Logger struct {
-	logger *ilogger.Logger
+	logger *ilog.Logger
 	pkg    string
 }
 
-func NewLogger(logger *ilogger.Logger, pkg string) *Logger {
+func NewLogger(logger *ilog.Logger, pkg string) *Logger {
 	return &Logger{
 		logger: logger,
 		pkg:    pkg,
