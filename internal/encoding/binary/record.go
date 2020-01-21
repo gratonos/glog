@@ -1,7 +1,6 @@
 package binary
 
 import (
-	"bufio"
 	"bytes"
 	"io"
 	"time"
@@ -27,10 +26,10 @@ func ReadRecord(record *Record, reader io.Reader) error {
 	if reader == nil {
 		panic(readingErrPrefix + ": nil reader")
 	}
-	return readRecord(record, bufio.NewReader(reader))
+	return readRecord(record, reader)
 }
 
-func readRecord(record *Record, reader *bufio.Reader) error {
+func readRecord(record *Record, reader io.Reader) error {
 	magic, err := readMagic(reader)
 	if err != nil {
 		return err

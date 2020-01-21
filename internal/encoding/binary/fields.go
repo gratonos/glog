@@ -1,7 +1,6 @@
 package binary
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"time"
@@ -39,7 +38,7 @@ const (
 	sizeOfHeader  = sizeOfMagic + sizeOfVersion
 )
 
-var fieldReaders = [...]func(*Record, *bufio.Reader) error{
+var fieldReaders = [...]func(*Record, io.Reader) error{
 	fieldTimestamp: readTimestamp,
 	fieldLevel:     readLevel,
 	fieldPkg:       readPkg,
@@ -108,7 +107,7 @@ func appendFieldKind(dst []byte, kind fieldKind) []byte {
 	return appendUint8(dst, uint8(kind))
 }
 
-func readMagic(reader *bufio.Reader) ([]byte, error) {
+func readMagic(reader io.Reader) ([]byte, error) {
 	magic := make([]byte, sizeOfMagic)
 	if err := read(magic, reader); err != nil {
 		if ioErr, ok := err.(*IOError); ok && ioErr.Err == io.EOF {
@@ -120,11 +119,11 @@ func readMagic(reader *bufio.Reader) ([]byte, error) {
 	return magic, nil
 }
 
-func readVersion(reader *bufio.Reader) (uint8, error) {
+func readVersion(reader io.Reader) (uint8, error) {
 	return readUint8(reader)
 }
 
-func readFields(record *Record, reader *bufio.Reader) error {
+func readFields(record *Record, reader io.Reader) error {
 	for {
 		kind, err := readFieldKind(reader)
 		if err != nil {
@@ -142,7 +141,7 @@ func readFields(record *Record, reader *bufio.Reader) error {
 	}
 }
 
-func readTimestamp(record *Record, reader *bufio.Reader) error {
+func readTimestamp(record *Record, reader io.Reader) error {
 	tm, err := readTime(reader)
 	if err == nil {
 		record.Time = tm
@@ -150,7 +149,7 @@ func readTimestamp(record *Record, reader *bufio.Reader) error {
 	return err
 }
 
-func readLevel(record *Record, reader *bufio.Reader) error {
+func readLevel(record *Record, reader io.Reader) error {
 	u, err := readUint8(reader)
 	if err != nil {
 		return err
@@ -165,7 +164,7 @@ func readLevel(record *Record, reader *bufio.Reader) error {
 	return nil
 }
 
-func readPkg(record *Record, reader *bufio.Reader) error {
+func readPkg(record *Record, reader io.Reader) error {
 	pkg, err := readShortString(reader)
 	if err == nil {
 		record.Pkg = pkg
@@ -173,7 +172,7 @@ func readPkg(record *Record, reader *bufio.Reader) error {
 	return err
 }
 
-func readFile(record *Record, reader *bufio.Reader) error {
+func readFile(record *Record, reader io.Reader) error {
 	file, err := readShortString(reader)
 	if err == nil {
 		record.File = file
@@ -181,7 +180,7 @@ func readFile(record *Record, reader *bufio.Reader) error {
 	return err
 }
 
-func readLine(record *Record, reader *bufio.Reader) error {
+func readLine(record *Record, reader io.Reader) error {
 	line, err := readUint32(reader)
 	if err == nil {
 		record.Line = int(line)
@@ -189,12 +188,12 @@ func readLine(record *Record, reader *bufio.Reader) error {
 	return err
 }
 
-func readMark(record *Record, _ *bufio.Reader) error {
+func readMark(record *Record, _ io.Reader) error {
 	record.Mark = true
 	return nil
 }
 
-func readMsg(record *Record, reader *bufio.Reader) error {
+func readMsg(record *Record, reader io.Reader) error {
 	msg, err := readString(reader)
 	if err == nil {
 		record.Msg = msg
@@ -202,7 +201,7 @@ func readMsg(record *Record, reader *bufio.Reader) error {
 	return err
 }
 
-func readContext(record *Record, reader *bufio.Reader) error {
+func readContext(record *Record, reader io.Reader) error {
 	key, kind, err := readContextMeta(reader)
 	if err != nil {
 		return err
@@ -222,7 +221,7 @@ func readContext(record *Record, reader *bufio.Reader) error {
 	return nil
 }
 
-func readFieldKind(reader *bufio.Reader) (fieldKind, error) {
+func readFieldKind(reader io.Reader) (fieldKind, error) {
 	u, err := readUint8(reader)
 	if err != nil {
 		return fieldKindBound, err

@@ -1,8 +1,8 @@
 package binary
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -36,7 +36,7 @@ func (self ValueKind) Legal() bool {
 	return self < valueKindBound
 }
 
-var valueReaders = [...]func(*bufio.Reader) (interface{}, error){
+var valueReaders = [...]func(io.Reader) (interface{}, error){
 	Bool:       readBoolValue,
 	Byte:       readByteValue,
 	Rune:       readRuneValue,
@@ -194,7 +194,7 @@ func appendValueKind(dst []byte, kind ValueKind) []byte {
 	return appendUint8(dst, uint8(kind))
 }
 
-func readContextMeta(reader *bufio.Reader) (string, ValueKind, error) {
+func readContextMeta(reader io.Reader) (string, ValueKind, error) {
 	key, err := readKey(reader)
 	if err != nil {
 		return "", valueKindBound, err
@@ -206,11 +206,11 @@ func readContextMeta(reader *bufio.Reader) (string, ValueKind, error) {
 	return key, kind, nil
 }
 
-func readKey(reader *bufio.Reader) (string, error) {
+func readKey(reader io.Reader) (string, error) {
 	return readShortString(reader)
 }
 
-func readValueKind(reader *bufio.Reader) (ValueKind, error) {
+func readValueKind(reader io.Reader) (ValueKind, error) {
 	u, err := readUint8(reader)
 	if err != nil {
 		return valueKindBound, err
@@ -222,90 +222,90 @@ func readValueKind(reader *bufio.Reader) (ValueKind, error) {
 	return kind, nil
 }
 
-func readBoolValue(reader *bufio.Reader) (interface{}, error) {
+func readBoolValue(reader io.Reader) (interface{}, error) {
 	return readBool(reader)
 }
 
-func readByteValue(reader *bufio.Reader) (interface{}, error) {
+func readByteValue(reader io.Reader) (interface{}, error) {
 	return readUint8(reader)
 }
 
-func readRuneValue(reader *bufio.Reader) (interface{}, error) {
+func readRuneValue(reader io.Reader) (interface{}, error) {
 	u, err := readUint32(reader)
 	return rune(u), err
 }
 
-func readInt8Value(reader *bufio.Reader) (interface{}, error) {
+func readInt8Value(reader io.Reader) (interface{}, error) {
 	u, err := readUint8(reader)
 	return int8(u), err
 }
 
-func readInt16Value(reader *bufio.Reader) (interface{}, error) {
+func readInt16Value(reader io.Reader) (interface{}, error) {
 	u, err := readUint16(reader)
 	return int16(u), err
 }
 
-func readInt32Value(reader *bufio.Reader) (interface{}, error) {
+func readInt32Value(reader io.Reader) (interface{}, error) {
 	u, err := readUint32(reader)
 	return int32(u), err
 }
 
-func readInt64Value(reader *bufio.Reader) (interface{}, error) {
+func readInt64Value(reader io.Reader) (interface{}, error) {
 	u, err := readUint64(reader)
 	return int64(u), err
 }
 
-func readUint8Value(reader *bufio.Reader) (interface{}, error) {
+func readUint8Value(reader io.Reader) (interface{}, error) {
 	return readUint8(reader)
 }
 
-func readUint16Value(reader *bufio.Reader) (interface{}, error) {
+func readUint16Value(reader io.Reader) (interface{}, error) {
 	return readUint16(reader)
 }
 
-func readUint32Value(reader *bufio.Reader) (interface{}, error) {
+func readUint32Value(reader io.Reader) (interface{}, error) {
 	return readUint32(reader)
 }
 
-func readUint64Value(reader *bufio.Reader) (interface{}, error) {
+func readUint64Value(reader io.Reader) (interface{}, error) {
 	return readUint64(reader)
 }
 
-func readUintptrValue(reader *bufio.Reader) (interface{}, error) {
+func readUintptrValue(reader io.Reader) (interface{}, error) {
 	u, err := readUint64(reader)
 	return uintptr(u), err
 }
 
-func readFloat32Value(reader *bufio.Reader) (interface{}, error) {
+func readFloat32Value(reader io.Reader) (interface{}, error) {
 	return readFloat32(reader)
 }
 
-func readFloat64Value(reader *bufio.Reader) (interface{}, error) {
+func readFloat64Value(reader io.Reader) (interface{}, error) {
 	return readFloat64(reader)
 }
 
-func readComplex64Value(reader *bufio.Reader) (interface{}, error) {
+func readComplex64Value(reader io.Reader) (interface{}, error) {
 	return readComplex64(reader)
 }
 
-func readComplex128Value(reader *bufio.Reader) (interface{}, error) {
+func readComplex128Value(reader io.Reader) (interface{}, error) {
 	return readComplex128(reader)
 }
 
-func readStringValue(reader *bufio.Reader) (interface{}, error) {
+func readStringValue(reader io.Reader) (interface{}, error) {
 	return readString(reader)
 }
 
-func readTimeValue(reader *bufio.Reader) (interface{}, error) {
+func readTimeValue(reader io.Reader) (interface{}, error) {
 	return readTime(reader)
 }
 
-func readDurationValue(reader *bufio.Reader) (interface{}, error) {
+func readDurationValue(reader io.Reader) (interface{}, error) {
 	u, err := readUint64(reader)
 	return time.Duration(u), err
 }
 
-func readTime(reader *bufio.Reader) (time.Time, error) {
+func readTime(reader io.Reader) (time.Time, error) {
 	u, err := readUint64(reader)
 	if err != nil {
 		return time.Time{}, err

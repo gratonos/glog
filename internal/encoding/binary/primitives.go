@@ -1,7 +1,6 @@
 package binary
 
 import (
-	"bufio"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -78,7 +77,7 @@ func appendShortString(dst []byte, str string) []byte {
 	return dst
 }
 
-func readBool(reader *bufio.Reader) (bool, error) {
+func readBool(reader io.Reader) (bool, error) {
 	u, err := readUint8(reader)
 	if err != nil {
 		return false, err
@@ -93,7 +92,7 @@ func readBool(reader *bufio.Reader) (bool, error) {
 	}
 }
 
-func readUint8(reader *bufio.Reader) (uint8, error) {
+func readUint8(reader io.Reader) (uint8, error) {
 	buf := make([]byte, 1)
 	if err := read(buf, reader); err != nil {
 		return 0, err
@@ -102,7 +101,7 @@ func readUint8(reader *bufio.Reader) (uint8, error) {
 	}
 }
 
-func readUint16(reader *bufio.Reader) (uint16, error) {
+func readUint16(reader io.Reader) (uint16, error) {
 	buf := make([]byte, 2)
 	if err := read(buf, reader); err != nil {
 		return 0, err
@@ -111,7 +110,7 @@ func readUint16(reader *bufio.Reader) (uint16, error) {
 	}
 }
 
-func readUint32(reader *bufio.Reader) (uint32, error) {
+func readUint32(reader io.Reader) (uint32, error) {
 	buf := make([]byte, 4)
 	if err := read(buf, reader); err != nil {
 		return 0, err
@@ -120,7 +119,7 @@ func readUint32(reader *bufio.Reader) (uint32, error) {
 	}
 }
 
-func readUint64(reader *bufio.Reader) (uint64, error) {
+func readUint64(reader io.Reader) (uint64, error) {
 	buf := make([]byte, 8)
 	if err := read(buf, reader); err != nil {
 		return 0, err
@@ -129,7 +128,7 @@ func readUint64(reader *bufio.Reader) (uint64, error) {
 	}
 }
 
-func readFloat32(reader *bufio.Reader) (float32, error) {
+func readFloat32(reader io.Reader) (float32, error) {
 	u, err := readUint32(reader)
 	if err != nil {
 		return 0.0, err
@@ -137,7 +136,7 @@ func readFloat32(reader *bufio.Reader) (float32, error) {
 	return math.Float32frombits(u), nil
 }
 
-func readFloat64(reader *bufio.Reader) (float64, error) {
+func readFloat64(reader io.Reader) (float64, error) {
 	u, err := readUint64(reader)
 	if err != nil {
 		return 0.0, err
@@ -145,7 +144,7 @@ func readFloat64(reader *bufio.Reader) (float64, error) {
 	return math.Float64frombits(u), nil
 }
 
-func readComplex64(reader *bufio.Reader) (complex64, error) {
+func readComplex64(reader io.Reader) (complex64, error) {
 	r, err := readFloat32(reader)
 	if err != nil {
 		return 0.0, err
@@ -157,7 +156,7 @@ func readComplex64(reader *bufio.Reader) (complex64, error) {
 	return complex(r, i), nil
 }
 
-func readComplex128(reader *bufio.Reader) (complex128, error) {
+func readComplex128(reader io.Reader) (complex128, error) {
 	r, err := readFloat64(reader)
 	if err != nil {
 		return 0.0, err
@@ -169,7 +168,7 @@ func readComplex128(reader *bufio.Reader) (complex128, error) {
 	return complex(r, i), nil
 }
 
-func readString(reader *bufio.Reader) (string, error) {
+func readString(reader io.Reader) (string, error) {
 	size, err := readUint16(reader)
 	if err != nil {
 		return "", err
@@ -177,7 +176,7 @@ func readString(reader *bufio.Reader) (string, error) {
 	return readStr(reader, uint(size))
 }
 
-func readShortString(reader *bufio.Reader) (string, error) {
+func readShortString(reader io.Reader) (string, error) {
 	size, err := readUint8(reader)
 	if err != nil {
 		return "", err
@@ -185,7 +184,7 @@ func readShortString(reader *bufio.Reader) (string, error) {
 	return readStr(reader, uint(size))
 }
 
-func readStr(reader *bufio.Reader, size uint) (string, error) {
+func readStr(reader io.Reader, size uint) (string, error) {
 	buf := make([]byte, size)
 	if err := read(buf, reader); err != nil {
 		return "", err
@@ -193,7 +192,7 @@ func readStr(reader *bufio.Reader, size uint) (string, error) {
 	return string(buf), nil
 }
 
-func read(buf []byte, reader *bufio.Reader) error {
+func read(buf []byte, reader io.Reader) error {
 	_, err := io.ReadFull(reader, buf)
 	if err != nil {
 		return newIOError(err)
