@@ -9,7 +9,7 @@ type Logger struct {
 
 type ConsoleWriter struct {
 	Enable       bool
-	Coloring     bool
+	TextConfig   TextConfig
 	ErrorHandler ErrorHandler
 }
 
@@ -18,4 +18,8 @@ type FileWriter struct {
 	MaxFileSize  int64
 	Dir          string
 	ErrorHandler ErrorHandler
+}
+
+type TextConfig struct {
+	Coloring bool
 }

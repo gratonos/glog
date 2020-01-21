@@ -26,8 +26,10 @@ func New() *Logger {
 		Level:    iface.Trace,
 		FileLine: true,
 		ConsoleWriter: iface.ConsoleWriter{
-			Coloring: true,
-			Enable:   true,
+			TextConfig: iface.TextConfig{
+				Coloring: true,
+			},
+			Enable: true,
 		},
 	}
 

@@ -1,13 +1,11 @@
 package console
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"time"
 
-	"github.com/gratonos/glog/internal/encoding/binary"
-	"github.com/gratonos/glog/internal/encoding/text"
+	"github.com/gratonos/glog/internal/util"
 	"github.com/gratonos/glog/pkg/glog/iface"
 )
 
@@ -21,12 +19,12 @@ func New(config iface.ConsoleWriter) *Writer {
 }
 
 func (this *Writer) Write(log []byte, tm time.Time) {
-	var record binary.Record
-	if err := binary.ReadRecord(&record, bytes.NewBuffer(log)); err != nil {
+	text, err := util.BinaryToText(log, this.config.TextConfig.Coloring)
+	if err != nil {
 		panic(fmt.Sprintf("glog: corrupted log: %v", err))
 	}
 
-	_, err := os.Stderr.Write(text.FormatRecord(&record, this.config.Coloring))
+	_, err = os.Stderr.Write(text)
 	if err != nil && this.config.ErrorHandler != nil {
 		this.config.ErrorHandler(tm, err)
 	}
