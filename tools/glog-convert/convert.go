@@ -30,7 +30,10 @@ func processPath(path string) {
 		} else {
 			ext := file.Extensions[iface.Binary]
 			if !strings.HasPrefix(name, ".") && strings.HasSuffix(name, ext) {
-				processFile(path, info.ModTime())
+				taskChan <- conversionTask{
+					Path:    path,
+					ModTime: info.ModTime(),
+				}
 			}
 		}
 

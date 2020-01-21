@@ -7,6 +7,7 @@ import (
 func init() {
 	initFlags()
 	initLog()
+	initPool()
 }
 
 func main() {
@@ -20,4 +21,7 @@ func main() {
 	for _, arg := range args {
 		processPath(arg)
 	}
+
+	close(taskChan)
+	waitGroup.Wait()
 }
